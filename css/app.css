@@ -1,0 +1,32 @@
+md-sidenav, md-sidenav.md-locked-open, md-sidenav.md-closed.md-locked-open-add-active {
+ min-width: 250px !important;
+ width: 100vw !important;
+ max-width: 250px !important;
+}
+
+.button-control {
+  padding: 8px !important;
+  width: 30px !important;
+  text-align: center;
+}
+.button-control > i {
+    position:relative;
+    top: calc(50% - 10px); /* 50% - 3/4 of icon height */
+}
+.button-control-videocall {
+  background-color: #3949ab !important;
+  color: white !important;
+  border-width:2px;
+  border-color:black !important;
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+.button-control-videocall-red {
+  background-color:  red !important;
+  color:  white !important;
+  border-width:2px;
+  border-color: black;
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+
+}
+
+.ng-scope { height: 100%; }

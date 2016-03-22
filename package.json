@@ -1,0 +1,14 @@
+{
+  "name": "easyrtc-frontend",
+  "version": "1.0.0",
+  "description": "A front end app for easy rtc in AngularJS",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "bower": "^1.7.7"
+  }
+}

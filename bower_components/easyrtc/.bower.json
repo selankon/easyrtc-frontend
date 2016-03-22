@@ -1,0 +1,14 @@
+{
+  "name": "easyrtc",
+  "homepage": "https://github.com/petermetz/easyrtc",
+  "version": "1.0.11",
+  "_release": "1.0.11",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.11",
+    "commit": "bcfcb46ffc559d2eebf7a7438530b43a7368412b"
+  },
+  "_source": "git://github.com/petermetz/easyrtc.git",
+  "_target": "^1.0.11",
+  "_originalSource": "easyrtc"
+}

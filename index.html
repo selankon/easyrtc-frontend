@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en" ng-app="easyRtcApp">
+<head>
+    <meta charset="utf-8">
+
+    <title>Easy RTC frontend</title>
+
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+
+    <!-- Angular bootstrap  -->
+    <script src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+
+    <!-- Messages for the forms -->
+    <script src="bower_components/angular-messages/angular-messages.min.js"></script>
+
+    <!-- angular material -->
+    <script src="bower_components/angular-aria/angular-aria.min.js"></script>
+    <script src="bower_components/angular-material/angular-material.min.js"></script>
+    <link rel="stylesheet" href="bower_components/angular-material/angular-material.min.css">
+
+    <!-- WebScokets -->
+    <!-- <script src="bower_components/socket.io/node_modules/socket.io-client/socket.io.js"></script> -->
+
+    <!-- EasyRtc -->
+    <script type="text/javascript" src="/easyrtc/easyrtc.js"></script>
+    <link rel="stylesheet" type="text/css" href="/easyrtc/easyrtc.css" />
+    <script src="/socket.io/socket.io.js"></script>
+
+
+    <script src="configurations.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/controllers/Ctrl-AVroom.js"></script>
+    <script src="js/controllers/Ctrl-Materials.js"></script>
+  <!--  <script src="js/controllers/generic-controllers.js"></script>
+    <script src="js/controllers/auth-controllers.js"></script>
+    <script src="js/controllers/chat-controllers.js"></script>
+    <script src="js/directives/generic-directives.js"></script>
+    <script src="js/services/gallery-services.js"></script>
+    <script src="js/services/auth-services.js"></script>
+    <script src="js/services/chat-services.js"></script>
+    <script src="js/filters/filters.js"></script> -->
+
+
+
+</head>
+
+
+<body layout="column" flow-prevent-drop ng-cloak style='overflow-y: hidden' >
+
+  <md-content ui-view  class="ng-scope" ></md-content>
+
+</body>
+</html>

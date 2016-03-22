@@ -1,0 +1,167 @@
+<md-content ng-controller="tutoCntrl" ng-init="showSimpleToast()" style="min-height: calc(100vh - 176px)" layout="row" layout-row  flex>
+
+  <!-- ICON THAT OPEN SIDENAV -->
+  <md-fab-speed-dial ng-cloak ng-init="show=true"  class="md-fling md-fab-top-left hide-gt-sm" md-direction="right">
+    <md-fab-trigger>
+        <md-button  aria-label="menu" class="md-fab md-primary md-mini" ng-click="toggleLeft()">
+          <md-icon md-font-icon="fa-bars" class="fa fa-lg" ></md-icon>
+        </md-button>
+    </md-fab-trigger>
+  </md-fab-speed-dial>
+
+
+
+  <!-- SIDENAV -->
+    <!-- Sidenav Header -->
+    <md-sidenav
+            class="md-sidenav-left"
+            md-component-id="left"
+            md-is-locked-open="$mdMedia('gt-sm')"
+            md-disable-backdrop
+            md-whiteframe="4" flex>
+          <md-toolbar class="md-theme-indigo">
+            <h1 class="md-toolbar-tools">Room: "{{roomId}}"</h1>
+            <div class="md-toolbar-tools">
+
+              <div ng-show="myId">
+                <md-button ng-click="disconnect()" aria-label="comment" class="md-accent md-raised md-hue-5" >
+                  <md-icon md-font-icon="fa-sign-out" class="fa fa-lg" style="color:white;" ></md-icon>
+                </md-button>
+              </div>
+              <div ng-show="!myId">
+                <span class="md-caption">You need to log in:</span>
+                <md-button ng-init="my_init()" ng-click="my_init()" aria-label="comment" class="md-button btn-success" style="background-color: #329932;" >
+                  Login!
+                </md-button>
+              </div>
+
+            </div>
+          </md-toolbar>
+          <md-content layout-padding ng-controller="LeftCtrl">
+
+            <!-- Self image -->
+            <span ng-show="myId"  ><span class="md-caption">Your <strong>easyrtc</strong> id is: </br>{{myId}} </span>
+
+              <div style="margin:0px;" >
+
+                <div  style="position:relative;" width="220">
+                  <div style="position:absolute;  margin:0px auto;" >
+                    <div
+                    ng-class="selfMicro ? 'button-control-videocall' : 'button-control-videocall-red'"
+                    class="button-control"
+                    ng-click="selfMicro=!selfMicro;stopMicro(selfMicro)"
+                    ng-model="selfMicro">
+                      <i class="fa " ng-class="selfMicro ? 'fa-microphone' : 'fa-microphone-slash'"></i>
+                    </div>
+                    <div
+                    class="button-control"
+                    ng-class="selfVideo ? 'button-control-videocall' : 'button-control-videocall-red'"
+                    ng-click="selfVideo=!selfVideo;stopVideo(selfVideo)"
+                    ng-model="selfVideo">
+                      <i class="fa " ng-class="selfVideo ? 'fa-video-camera' : 'fa-play'" ></i>
+                    </div>
+                  </div>
+                  <video  id="self" width="220"  muted="muted" ></video>
+                </div>
+              </div>
+            </span>
+            <!-- Show users list -->
+            <div hide-md show-gt-md>
+              <div ng-repeat="user in UserList" ng-click="" layout-align="center center">
+                <p>{{user.easyrtcid}}</p>
+                <div layout="row" layout-align="center start">
+                  <div ng-click='performCall(user.easyrtcid)' class="button-control" alt="VideoCall" style="background-color:#009688;color:white;"><i class="fa fa-video-camera"></i></div>
+                  <div ng-click='performCall(user.easyrtcid)' class="button-control" style="background-color:#3949ab;color:white;" alt="VideoCall"><i class="fa fa-phone"></i></div>
+                  <div ng-click='performCall(user.easyrtcid)' class="button-control" style="background-color:#9c27b0;color:white;" alt="VideoCall"><i class="fa fa-video-camera"></i></div>
+                </div>
+              </div>
+            </div>
+          </md-content>
+        </md-sidenav>
+
+
+    <!-- VIDECOALL SPACE -->
+    <md-content flex="100" layout="column" flex-gt-sm="70" >
+      <md-content layout="row" >
+
+        <div style="container-fluid" ng-show="callInProgres" style="" >
+          Stream Name: {{callInProgres}}
+
+          <!-- buttons -->
+            <div  style="position:relative;" width="100%">
+
+
+              <!-- video -->
+              <video style="img-responsive" id="caller" width="100%" mute="{{muteCaller}}" ng-show="noVideoCaller"></video>
+              <!-- <video style="img-responsive" id="caller" width="100%" mute="{{muteCaller}}" ></video> -->
+
+
+
+
+
+            </div>
+        </div>
+      </md-content>
+
+      <!-- Call Options -->
+      <md-fab-speed-dial
+      ng-cloak
+      class="md-fling md-fab-bottom-left"
+      md-direction="up"
+      >
+        <md-fab-trigger>
+          <md-button aria-label="menu" class="md-fab md-warn">
+              <md-icon md-svg-src="img/icons/ic_settings_phone_white_24px.svg"></md-icon>
+          </md-button>
+        </md-fab-trigger>
+
+        <md-fab-actions>
+          <md-button ng-click="muteCaller=!muteCaller" class="md-fab md-mini"  ng-class="muteCaller ? 'md-accent': 'md-primary'" ng-init="muteCaller = false">
+            <md-icon ng-show ="muteCaller" md-font-icon="fa-microphone-slash" class="fa fa-lg" style="color:white;" ></md-icon>
+            <md-icon ng-show ="!muteCaller"  md-font-icon="fa-microphone" class="fa fa-lg" style="color:white;" ></md-icon>
+          </md-button>
+
+          <md-button ng-click="noVideoCaller=!noVideoCaller" class="md-fab md-mini" ng-class="noVideoCaller ? 'md-primary': 'md-accent'"  ng-init="noVideoCaller = true">
+            <md-icon ng-show="noVideoCaller" md-svg-src="img/icons/ic_videocam_white_24px.svg"></md-icon>
+            <md-icon ng-show="!noVideoCaller" md-svg-src="img/icons/ic_videocam_off_white_24px.svg"></md-icon>
+          </md-button>
+
+        </md-fab-actions>
+      </md-fab-speed-dial>
+
+      <!-- hang up -->
+      <md-fab-speed-dial ng-cloak class="md-fling md-fab-bottom-right" md-direction="right">
+        <md-fab-trigger>
+            <md-button style="background-color:red;" aria-label="menu" class="md-fab md-warn" ng-click="callInProgres ? hangUpAll() : null">
+              <md-icon md-svg-src="img/icons/ic_phone_missed_white_24px.svg" class="fa fa-lg" style="color:white;" ></md-icon>
+            </md-button>
+        </md-fab-trigger>
+      </md-fab-speed-dial>
+
+    </md-content>
+
+
+
+
+</md-content>
+<!-- CHAT -->
+<!-- <div class="container" layout="row" layout-align="end end">
+        <div class="navbar-inner navbar-content-center "  >
+          <div>
+            <div class="input-group">
+              <span class="input-group-addon" ><i class="fa fa-smile-o fa-2x"></i></span>
+              <form ng-submit="sendMsgBtn(inputMsg);inputMsg=''" >
+                <input  ng-init="inputMsg=''" ng-model="inputMsg" type="text" class="form-control input-lg" placeholder="Message here..">
+              </form>
+
+              <span class="input-group-addon btn"  ng-click="sendMsgBtn(inputMsg);inputMsg=''" ><i class="fa fa-paper-plane fa-2x"></i>
+</span>
+            </div>
+
+          </div>
+        </div>
+</div> -->
+
+<!-- <div class="btn btn-primary" ng-click="my_init()">start</div> -->
+<!-- <video  style="float:right" id="self" width="300" height="200" muted="muted"></video> -->
+<!-- <div id="otherClients"> </div> -->

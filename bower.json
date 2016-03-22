@@ -1,0 +1,30 @@
+{
+  "name": "easyrtc-frontend",
+  "description": "A front end app for easy rtc in AngularJS",
+  "main": "index.html",
+  "license": "ISC",
+  "moduleType": [
+    "amd",
+    "node"
+  ],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-bootstrap": "^1.2.4",
+    "angular-material": "^1.0.6",
+    "angular-ui-router": "^0.2.18",
+    "angular": "^1.5.1",
+    "bootstrap": "^3.3.6",
+    "jquery": "^2.2.1",
+    "angular-route": "^1.5.1",
+    "socket.io": "^1.4.5",
+    "easyrtc": "^1.0.11",
+    "angular-aria": "^1.5.2"
+  }
+}
