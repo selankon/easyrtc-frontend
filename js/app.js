@@ -5,9 +5,10 @@ var easyRtcApp = angular.module('easyRtcApp', [
   'ngMessages',
   'ui.bootstrap',
 
+  'genericFilters',
   'audioVideoCntrl',
   'easyRtcApp.config',
-  'meterialsControler',
+  'meterialsControler'
 
 ]);
 easyRtcApp.config(['$urlRouterProvider', '$stateProvider', '$httpProvider', 'URLS',

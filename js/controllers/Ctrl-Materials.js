@@ -1,5 +1,16 @@
 var meterialsControler = angular.module('meterialsControler', []);
 
+meterialsControler.controller('ToastCtrl',
+  function($scope, $mdToast, $mdDialog) {
+    $scope.closeToast = function() {
+      $mdToast
+        .hide()
+        .then(function() {
+        });
+    };
+  });
+
+
 //MATERIALS THINGS!
 audioVideoCntrl.controller('tutoCntrl', function ($scope, $timeout, $mdSidenav, $log, $mdMedia, $mdToast, $mdDialog) {
 
@@ -52,15 +63,25 @@ audioVideoCntrl.controller('tutoCntrl', function ($scope, $timeout, $mdSidenav, 
       if (trigger) $scope.hideToast ();
       else $scope.showSimpleToast ();
     };
+    // $scope.showSimpleToast = function() {
+    //   var pinTo = $scope.getToastPosition();
+    //   $mdToast.show(
+    //     $mdToast.simple()
+    //       .textContent('Need login room!')
+    //       .position(pinTo )
+    //       .hideDelay(99999)
+    //   );
+    // };
+
     $scope.showSimpleToast = function() {
       var pinTo = $scope.getToastPosition();
-      $mdToast.show(
-        $mdToast.simple()
-          .textContent('Need login room!')
-          .position(pinTo )
-          .hideDelay(99999)
-      );
-    };
+        $mdToast.show({
+          hideDelay   : 99999,
+          position    : pinTo,
+          templateUrl : 'partials/materials/toast.html',
+          controller  : 'tutoCntrl'
+        });
+      };
     $scope.hideToast = function() {
       $mdToast.hide();
     };

@@ -24,7 +24,7 @@ var webServer = http.createServer(httpApp).listen(HTTP_PORT);
 var socketServer = io.listen(webServer, {"log level":1});
 var socketServer = io.listen(httpsServer, {"log level":1});
 
-2- Add your easyrtc-frontend files to the server for evit to create a new one
+2- Add your easyrtc-frontend files to the server avoiding create a new one
 in /lib/easyrtc_default_options.js
 
 // App Options
@@ -54,4 +54,4 @@ if (pub.getOption("appEnable")) {
     pub.httpApp.get(pub.getOption("appPublicFolder"), function(req, res) {res.redirect(pub.getOption("appPublicFolder") + "/");});
   }
 
-With this we can acces to the forntend directly from ojur server installation without aditional http server 
+With this we can acces to the forntend directly from our server installation without aditional http server
