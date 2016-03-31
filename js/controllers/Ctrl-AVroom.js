@@ -97,7 +97,8 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
 
                     $scope.easyrtc.setVideoObjectSrc(selfVideo, $scope.easyrtc.getLocalStream());
                     // For the chat
-                    $scope.easyrtc.setPeerListener($scope.msgHandler);
+                    // $scope.easyrtc.setPeerListener($scope.msgHandler);
+                    $scope.easyrtc.setPeerListener($scope.msgReceived);
 
                     $scope.easyrtc.connect($scope.roomId, connectSuccess, connectFailure);
                 },
@@ -105,18 +106,35 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
           );
       };
 
-      $scope.newMsgHandler = false;
-      $scope.msgContent = {};
-      $scope.msgContent.msgType = "firstTime";
-      $scope.msgHandler = function(who,msgType, msg) {
-        $scope.msgContent.who = who;
-        $scope.msgContent.msgType = who;
-        $scope.msgContent.msg = msg;
-        console.log("Msg handler type " ,msgType  , " msg:  " , msg);
-
-        // console.log("$scope.newMsgHandler" , $scope.newMsgHandler);
-        $scope.newMsgHandler = !$scope.newMsgHandler;
+      //CHAT MOVIES
+      $scope.audMsgReceived = function (){
+        var audio = new Audio(sounds.chatMessageAlert);
+        audio.play();
+      }
+      $scope.chat = {msgList: '', msg: ''};
+      $scope.chat.msgList = [];
+      $scope.msgReceived = function ( who ,msgType, msg) {
+          setTimeout(function() {
+              $scope.$apply(function () {
+                  console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
+                  $scope.chat.msgList.push(msg);
+                  $scope.audMsgReceived();
+              }, 0);
+          });
       };
+
+      // Chat things
+      // $scope.newMsgHandler = false;
+      // $scope.msgContent = {};
+      // $scope.msgHandler = function(who,msgType, msg) {
+      //   $scope.msgContent.who = who;
+      //   $scope.msgContent.msgType = who;
+      //   $scope.msgContent.msg = msg;
+      //   console.log("Msg handler type " ,msgType  , " msg:  " , msg);
+      //
+      //   // console.log("$scope.newMsgHandler" , $scope.newMsgHandler);
+      //   $scope.newMsgHandler = !$scope.newMsgHandler;
+      // };
 
 
      function loggedInListener(roomName, otherPeers) {

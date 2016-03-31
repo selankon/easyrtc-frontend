@@ -45,6 +45,10 @@ easyRtcApp.config(['$urlRouterProvider', '$stateProvider', '$httpProvider', 'URL
         templateUrl: 'partials/file-transfer/FileRoom.html',
         controller: 'fileRoomCntrl'
       })
+      .state('chat', {
+        templateUrl: 'partials/chat/chat.html',
+        controller: 'chatCntrlAll'
+      })
 
     $urlRouterProvider.otherwise('/'+URLS.index);
 

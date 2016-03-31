@@ -1,15 +1,17 @@
 var fileTransferCntrl = angular.module('fileTransferCntrl', []);
 
-fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog',
-    function($scope, $stateParams, $state, $mdDialog) {
+fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'sounds',
+    function($scope, $stateParams, $state, $mdDialog, sounds) {
 
       $scope.roomId = $stateParams.roomId;
       $scope.myId = false;
       $scope.noDCs = {}; // which users don't support data channels
-      $scope.dropAreaName = "droparea_"
+      $scope.dropAreaName = "droparea_";
+      $scope.easyrtc = easyrtc;
+
 
       // **** Accept file download
-      // easyrtc.setAcceptChecker(function(easyrtcid, responsefn) {
+      // $scope.easyrtc.setAcceptChecker(function(easyrtcid, responsefn) {
       //     var params = {
       //       title : "Download File",
       //       textContent : null,
@@ -17,18 +19,18 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       //       ok : "Download",
       //       cancel : "Reject"
       //     };
-      //     if( easyrtc.getConnectionCount() > 0 ) {
-      //       params.textContent = "Cancel file transfer from " + easyrtc.idToName(easyrtcid) + " ?";
+      //     if( $scope.easyrtc.getConnectionCount() > 0 ) {
+      //       params.textContent = "Cancel file transfer from " + $scope.easyrtc.idToName(easyrtcid) + " ?";
       //     }
       //     else {
-      //       params.textContent = "Accept download file from " + easyrtc.idToName(easyrtcid) + " ?";
+      //       params.textContent = "Accept download file from " + $scope.easyrtc.idToName(easyrtcid) + " ?";
       //     }
       //     console.log("incoming call", params.textContent);
       //
       //     $scope.acceptTheCall = function(wasAccepted) {
       //      //  document.getElementById("acceptCallBox").style.display = "none";
-      //       if( wasAccepted && easyrtc.getConnectionCount() > 0 ) {
-      //         easyrtc.hangupAll();
+      //       if( wasAccepted && $scope.easyrtc.getConnectionCount() > 0 ) {
+      //         $scope.easyrtc.hangupAll();
       //       }
       //       responsefn(wasAccepted);
       //     };
@@ -58,27 +60,28 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
       // **** Custom init and connect to the room
       $scope.my_init = function () {
-        easyrtc.enableDataChannels(true);
-        easyrtc.enableVideo(false);
-        easyrtc.enableAudio(false);
+        $scope.easyrtc.enableDataChannels(true);
+        $scope.easyrtc.enableVideo(false);
+        $scope.easyrtc.enableAudio(false);
+        $scope.easyrtc.setPeerListener($scope.msgReceived); //Chat
 
         //Listener new occupant
-        easyrtc.setRoomOccupantListener( loggedInListener );
+        $scope.easyrtc.setRoomOccupantListener( loggedInListener );
 
         //Automatic accept checker
-        easyrtc.setAcceptChecker(function(easyrtcid, responsefn) {
+        $scope.easyrtc.setAcceptChecker(function(easyrtcid, responsefn) {
           responsefn(true);
         });
 
         //Conected to user
-        easyrtc.setDataChannelOpenListener(function(easyrtcid, usesPeer) {
+        $scope.easyrtc.setDataChannelOpenListener(function(easyrtcid, usesPeer) {
           console.log("Conected to ", easyrtcid);
           // $scope.createDragAnDrop(easyrtcid);
 
         });
 
         //Disconected to user
-        easyrtc.setDataChannelCloseListener(function(easyrtcid) {
+        $scope.easyrtc.setDataChannelCloseListener(function(easyrtcid) {
           console.log("Disconect to ", easyrtcid);
         });
 
@@ -93,12 +96,12 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
         //Failed to connect to Room
         var loginFailure = function(errorCode, message) {
-          easyrtc.showError(errorCode, message);
+          $scope.easyrtc.showError(errorCode, message);
           console.log(errorCode, message);
         }
 
         //Connect to Room
-        easyrtc.connect($scope.roomId, loginSuccess, loginFailure);
+        $scope.easyrtc.connect($scope.roomId, loginSuccess, loginFailure);
       };
       $scope.my_init ();
 
@@ -111,7 +114,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
        // **** Automatically connect to peer
        $scope.conectionToPeer = function (easyrtcid){
 
-         easyrtc.call(easyrtcid,
+         $scope.easyrtc.call(easyrtcid,
                  function(caller, mediatype) {
                     console.log("Connecting to ", easyrtcid);
                  },
@@ -198,13 +201,13 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         //     // if we haven't eastablished a connection to the other party yet, do so now,
         //     // and on completion, send the files. Otherwise send the files now.
         //     var timer = null;
-        //     if (easyrtc.getConnectStatus(easyrtcid) === easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
+        //     if ($scope.easyrtc.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
         //         // calls between firefrox and chrome ( version 30) have problems one way if you
         //         // use data channels.
         //         console.log("not conected");
         //
         //     }
-        //     else if (easyrtc.getConnectStatus(easyrtcid) === easyrtc.IS_CONNECTED || $scope.noDCs[easyrtcid]) {
+        //     else if ($scope.easyrtc.getConnectStatus(easyrtcid) === $scope.easyrtc.IS_CONNECTED || $scope.noDCs[easyrtcid]) {
         //         if (!fileSender) {
         //             fileSender = easyrtc_ft.buildFileSender(easyrtcid, updateStatusDiv);
         //         }
@@ -213,7 +216,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         //         fileSender(files, true /* assume binary */);
         //     }
         //     else {
-        //         easyrtc.showError("user-error", "Wait for the connection to complete before adding more files!");
+        //         $scope.easyrtc.showError("user-error", "Wait for the connection to complete before adding more files!");
         //     }
         // }
 
@@ -221,6 +224,22 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         easyrtc_ft.buildDragNDropRegion($scope.dropAreaName+easyrtcid, filesHandler);
       }
 
+      //CHAT MOVIES
+      $scope.audMsgReceived = function (){
+        var audio = new Audio(sounds.chatMessageAlert);
+        audio.play();
+      }
+      $scope.chat = {msgList: '', msg: ''};
+      $scope.chat.msgList = [];
+      $scope.msgReceived = function ( who ,msgType, msg) {
+          setTimeout(function() {
+              $scope.$apply(function () {
+                  console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
+                  $scope.chat.msgList.push(msg);
+                  $scope.audMsgReceived();
+              }, 0);
+          });
+      };
 
 
 

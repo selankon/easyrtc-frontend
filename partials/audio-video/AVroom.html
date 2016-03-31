@@ -99,7 +99,7 @@
           </md-content>
 
           <!-- BACKGROUND DIV -->
-          <md-content layout="row" layout-align="center center"  flex ng-show="!callInProgres" ng-click="msgHandler('11', '11')">
+          <md-content layout="row" layout-align="center center"  flex ng-show="!callInProgres" >
             <div>
             Messages like: you need to call, calling, call rejected...<br/>
             This will be inside a icon like:
@@ -153,7 +153,7 @@
       <!-- CHAT SPACE -->
       <div flex flex-gt-sm="30"  style="border: 1px solid grey;" class="border-radius" layout="column" >
 
-
+        <!-- <ng-include src="'partials/chat/chat.html'" scope="this"></ng-include> -->
         <md-content chat layout='column'></md-content>
 
 
