@@ -5,8 +5,10 @@ var easyRtcApp = angular.module('easyRtcApp', [
   'ngMessages',
   'ui.bootstrap',
 
+  'choiceCntrl',
   'genericFilters',
   'audioVideoCntrl',
+  'fileTransferCntrl',
   'easyRtcApp.config',
   'meterialsControler'
 
@@ -17,7 +19,8 @@ easyRtcApp.config(['$urlRouterProvider', '$stateProvider', '$httpProvider', 'URL
     $stateProvider
       .state(URLS.index, {
         url: '/'+URLS.index,
-        templateUrl: 'partials/choice.html'
+        templateUrl: 'partials/choice.html',
+        controller: 'choicePageCntrl'
       })
       .state(URLS.createRoom, {
         url: '/'+URLS.createRoom,
@@ -30,6 +33,17 @@ easyRtcApp.config(['$urlRouterProvider', '$stateProvider', '$httpProvider', 'URL
         controller: 'audiovideoPage'
       })
 
-    $urlRouterProvider.otherwise('/'+URLS.createRoom);
+      .state(URLS.createFileRoom, {
+        url: '/'+URLS.createFileRoom,
+        templateUrl: 'partials/file-transfer/create-file-room.html',
+        controller: 'createFileRoomCntrl'
+      })
+      .state(URLS.createFileRoom+'/'+URLS.fileTransfer+'/:roomId', {
+        url: '/'+URLS.createFileRoom+'/'+URLS.fileTransfer+'/:roomId',
+        templateUrl: 'partials/file-transfer/FileRoom.html',
+        controller: 'fileRoomCntrl'
+      })
+
+    $urlRouterProvider.otherwise('/'+URLS.index);
 
 }]);

@@ -1,7 +1,7 @@
 var audioVideoCntrl = angular.module('audioVideoCntrl', []);
 
-audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDialog', '$mdMedia',
-    function($scope, $stateParams, $mdDialog, $mdMedia) {
+audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDialog', '$mdMedia', 'sounds',
+    function($scope, $stateParams, $mdDialog, $mdMedia, sounds) {
       $scope.roomId = $stateParams.roomId;
       $scope.myId = false;
       $scope.callInProgres = false;
@@ -169,11 +169,11 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
            };
 
         console.log("Sending message: " , $scope.chat.newMsg);
-        // if ($scope.destiny == $scope.defaultDestiny) {
-        //   easyrtc.sendDataWS({ targetRoom: 'default' }, "message", $scope.chat.newMsg );
-        // } else {
-        //   easyrtc.sendDataWS($scope.chat.newMsg.to, "message", $scope.chat.newMsg);
-        // }
+        if ($scope.destiny == $scope.defaultDestiny) {
+          easyrtc.sendDataWS({ targetRoom: 'default' }, "message", $scope.chat.newMsg );
+        } else {
+          easyrtc.sendDataWS($scope.chat.newMsg.to, "message", $scope.chat.newMsg);
+        }
         msgReceived("Me", "message", $scope.chat.newMsg);
 
         $scope.destiny = $scope.defaultDestiny;
@@ -189,7 +189,9 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
                   //     content = content.msg;
                   // }
                   console.log("Message received!" , msg, "  who  " , who);
-                  $scope.chat.msgList.push(msg)
+                  $scope.chat.msgList.push(msg);
+                  var audio = new Audio(sounds.chatMessageAlert);
+                  audio.play();
                   // $scope.chat.allMsgs += "<b>" + who + " </b> <span class=\"chat_timespan\">[<i>" + $filter('date')(new Date(), 'H:mm ss') + "</i>]</span> : &nbsp;" + content + "<br />";
               }, 0);
           });
@@ -207,8 +209,8 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
 audioVideoCntrl.controller ('createRoomCntrl', [ '$scope', '$stateParams', '$state', 'URLS',
     function($scope, $stateParams, $state, URLS) {
       $scope.baseUrl = URLS.createRoom+"/"+URLS.audioVideo+"/";
-      $scope.createRoomBtn = function (){
-        // console.log("FDASF ", $scope.roomId);
-        $state.go($scope.baseUrl+":roomId", { "roomId": $scope.roomId});
-      }
+      // $scope.createRoomBtn = function (){
+      //   // console.log("FDASF ", $scope.roomId);
+      //   $state.go($scope.baseUrl+":roomId", { "roomId": $scope.roomId});
+      // }
 }]);

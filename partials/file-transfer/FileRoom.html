@@ -1,0 +1,121 @@
+<md-content ng-controller="tutoCntrl" ng-init="showSimpleToast()" style="min-height: calc(100vh - 176px)" layout="row" layout-row  flex>
+
+  <!-- ICON THAT OPEN SIDENAV -->
+  <md-fab-speed-dial ng-cloak ng-init="show=true"  class="md-fling md-fab-top-left hide-gt-sm" md-direction="right">
+    <md-fab-trigger>
+        <md-button  aria-label="menu" class="md-fab md-primary md-mini" ng-click="toggleLeft()">
+          <md-icon md-font-icon="fa-bars" class="fa fa-lg" ></md-icon>
+        </md-button>
+    </md-fab-trigger>
+  </md-fab-speed-dial>
+
+
+
+  <!-- SIDENAV -->
+    <!-- Sidenav Header -->
+    <md-sidenav
+            class="md-sidenav-left"
+            md-component-id="left"
+            md-is-locked-open="$mdMedia('gt-sm')"
+            md-disable-backdrop
+            md-whiteframe="4" flex>
+          <md-toolbar class="md-theme-indigo">
+            <h1 class="md-toolbar-tools">Room: "{{roomId}}"</h1>
+            <div class="md-toolbar-tools">
+
+              <div ng-show="myId">
+                <md-button ng-click="disconnect()" aria-label="comment" class="md-accent md-raised md-hue-5" >
+                  <md-icon md-font-icon="fa-sign-out" class="fa fa-lg" style="color:white;" ></md-icon>
+                </md-button>
+              </div>
+              <div ng-show="!myId">
+                <span class="md-caption">You need to log in:</span>
+                <md-button ng-init="my_init()" ng-click="my_init()" aria-label="comment" class="md-button btn-success" style="background-color: #329932;" >
+                  Login!
+                </md-button>
+              </div>
+
+            </div>
+          </md-toolbar>
+          <md-content layout-padding ng-controller="LeftCtrl">
+
+            <!-- Self image -->
+            <span ng-show="myId"  ><span class="md-caption">Your <strong>easyrtc</strong> id is: </br>{{myId}} </span>
+            </span>
+            <md-divider inset></md-divider>
+
+            <!-- Show users list -->
+            <div hide-md show-gt-md>
+              <div ng-repeat="user in UserList" ng-click="" layout-align="center center">
+                <p>{{user.easyrtcid}}</p>
+                <div layout="row" layout-align="center center">
+                  <span class="md-caption">Send private file </span>
+                  <div ng-init='conectionToPeer(user.easyrtcid)' class="button-control" alt="VideoCall" style="background-color:#009688;color:white;"><i class="fa fa-space-shuttle"></i></div>
+                </div>
+                <md-divider inset></md-divider>
+
+              </div>
+            </div>
+          </md-content>
+        </md-sidenav>
+
+        <div layout="row" layout-sm="column" layout-xs="column"  flex>
+
+          <md-content flex="100" layout="column" layout-sm="row" layout-xs="row" flex-gt-sm="60"  class="border-radius" style="background-color:grey;">
+
+            <div
+            id="dropArea-{{myId}}" style="background-color:grey; width: 200px;height: 200px;" class="dragndrop connected">
+            aa
+            </div>
+            Files to send:
+            <div ng-repeat="file in filesToSend"  >
+              {{file.name}}
+            </div>
+
+          </md-content>
+        </div>
+
+</md-content>
+
+<!-- <div  layout="row"   >
+<div  layout="column"  ng-cloak >
+
+    <md-toolbar  md-scroll-shrink   class="md-theme-light" >
+      <div class="md-toolbar-tools">
+        <h2>
+          <span>Room: "{{roomId}}"</span>
+        </h2>
+        <span ng-show="myId" class="md-caption" layout-margin>
+          Your <strong>easyrtc</strong> id is: </br>{{myId}}
+        </span>
+      </div>
+    </md-toolbar>
+
+    <md-content flex>
+      <md-list>
+        <md-list-item class="md-3-line" ng-repeat="user in UserList" >
+          <div class="md-list-item-text">
+            <h3>{{user.easyrtcid}}</h3>
+            <div ng-click='conectionToPeer(user.easyrtcid)'  class="button-control" alt="VideoCall" style="background-color:#009688;color:white;">
+              <i class="fa fa-video-camera"></i>
+            </div>
+          </div>
+
+
+            <div
+            id="dropArea-{{user.easyrtcid}}" style="background-color:grey; width: 200px;height: 200px;" class="dragndrop connected">
+            aa
+            </div>
+            Files to send:
+            <div ng-repeat="file in filesToSend"  >
+              {{file.name}}
+            </div>
+          <md-divider inset></md-divider>
+        </md-list-item>
+      </md-list>
+    </md-content>
+</div>
+<div  layout="column"  ng-cloak flex="50">
+  fd
+</div>
+</div> -->

@@ -8,5 +8,12 @@ var config_module = angular.module('easyRtcApp.config', [])
 .constant("URLS", {
   "index" : "choice",
   "createRoom" : "create",
-  "audioVideo" : "AV"
+  "audioVideo" : "AV",
+  
+  "createFileRoom" : "fileTransfer",
+  "fileTransfer" : "ft"
+})
+
+.constant("sounds", {
+  "chatMessageAlert" : "audio/messageReceived.mp3"
 })
