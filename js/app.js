@@ -5,10 +5,12 @@ var easyRtcApp = angular.module('easyRtcApp', [
   'ngMessages',
   'ui.bootstrap',
 
+  'chatCntrl',
   'choiceCntrl',
   'genericFilters',
   'audioVideoCntrl',
   'fileTransferCntrl',
+  'genericDirectives',
   'easyRtcApp.config',
   'meterialsControler'
 

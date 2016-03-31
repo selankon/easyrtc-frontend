@@ -1,0 +1,35 @@
+<md-content>
+
+  <div layout='row' flex="initial"  layout-align-gt-sm="start start " layout-align="start start ">
+    <!-- chat input text -->
+    <div   layout-align='center end'  ng-class="screenIsSmall ? 'layout-fill' : none">
+      <md-input-container class="md-icon-float md-block">
+        <label>{{destiny}}</label>
+        <md-icon md-font-icon="fa" class="fa fa-comment fa-lg"  style="color:grey;" ng-show="destiny==defaultDestiny" ></md-icon>
+        <md-icon md-font-icon="fa" class="fa fa-comment fa-lg"  style="color:red;" ng-show="!(destiny==defaultDestiny)"  ng-click="changeDestiny(defaultDestiny)"></md-icon>
+        <form ng-submit="send(newMsg);newMsg='';" >
+          <input ng-model="newMsg" type="text"  ng-cloak>
+        </form>
+      </md-input-container>
+      <!-- <span class="md-caption md-warn">Private message to: </span> -->
+    </div>
+    <!-- chat send button -->
+    <md-button ng-click="send(newMsg);newMsg='';" class="md-fab md-mini md-primary"  aria-label="sendMessage">
+      <md-icon md-svg-src="img/icons/ic_send_white_24px.svg" class="fa fa-lg" style="color:white;" ></md-icon>
+    </md-button>
+  </div>
+
+  <md-content layout="row" layout-align="end start "  flex-gt-sm="100" flex="grow">
+    <md-content layout="column"  layout-align="start end"  flex-gt-sm="100" flex="65">
+      <md-content layout="row" >
+        <md-content class="md-padding main-content"   flex="100" >
+
+          <div ng-repeat="msg in chat.msgList | reverse" class="fade-in">
+            {{msg.from}}: {{msg.content}}
+          </div>
+        </md-content>
+      </md-content>
+
+    </md-content>
+  </md-content>
+</md-content>
