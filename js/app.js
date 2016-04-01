@@ -1,7 +1,9 @@
 var easyRtcApp = angular.module('easyRtcApp', [
+  'emoji',
   'ngRoute',
   'ui.router',
   'ngMaterial',
+  'ngSanitize',
   'ngMessages',
   'ui.bootstrap',
 

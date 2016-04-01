@@ -25,7 +25,8 @@
         <md-content class="md-padding main-content"   flex="100" >
 
           <div ng-repeat="msg in chat.msgList | reverse" class="fade-in">
-            {{msg.from}}: {{msg.content}}
+
+            {{msg.from}}: <span ng-bind-html='msg.content | emoji'></span>
           </div>
         </md-content>
       </md-content>

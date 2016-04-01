@@ -104,16 +104,14 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         $scope.easyrtc.connect($scope.roomId, loginSuccess, loginFailure);
       };
       $scope.my_init ();
+      // MY INIT FINISH
 
       // **** Function that controlls when a new peer is connected
       function loggedInListener(roomName, otherPeers) {
          $scope.$apply(function() { $scope.UserList = otherPeers;});
-
        };
-
        // **** Automatically connect to peer
        $scope.conectionToPeer = function (easyrtcid){
-
          $scope.easyrtc.call(easyrtcid,
                  function(caller, mediatype) {
                     console.log("Connecting to ", easyrtcid);
@@ -132,10 +130,8 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
       // **** Accept or reject a file from other
       function acceptRejectCB(otherGuy, fileNameList, wasAccepted) {
-
         // List the files being offered
         console.log("Files offered: " , fileNameList);
-
       }
 
       // **** Save a file
@@ -145,7 +141,6 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
       // **** The receive messages from the status of transmission
       function receiveStatusCB(otherGuy, msg) {
-
         switch (msg.status) {
             case "started":
                 console.log("Started transfer");
@@ -166,7 +161,6 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
                 console.log("strange file receive cb message = ", JSON.stringify(msg));
         }
         return true;
-
       }
 
       $scope.createDragAnDrop = function (easyrtcid) {
@@ -196,29 +190,30 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         }
 
         var fileSender = null;
-        // function filesHandler(files) {
-        //   console.log("WADASAFDSGASGAS " , files);
-        //     // if we haven't eastablished a connection to the other party yet, do so now,
-        //     // and on completion, send the files. Otherwise send the files now.
-        //     var timer = null;
-        //     if ($scope.easyrtc.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
-        //         // calls between firefrox and chrome ( version 30) have problems one way if you
-        //         // use data channels.
-        //         console.log("not conected");
-        //
-        //     }
-        //     else if ($scope.easyrtc.getConnectStatus(easyrtcid) === $scope.easyrtc.IS_CONNECTED || $scope.noDCs[easyrtcid]) {
-        //         if (!fileSender) {
-        //             fileSender = easyrtc_ft.buildFileSender(easyrtcid, updateStatusDiv);
-        //         }
-        //
-        //         $scope.$apply(function() { $scope.filesToSend = files;});
-        //         fileSender(files, true /* assume binary */);
-        //     }
-        //     else {
-        //         $scope.easyrtc.showError("user-error", "Wait for the connection to complete before adding more files!");
-        //     }
-        // }
+        function filesHandler(files) {
+          console.log("Added files to dragAnDrop " , files);
+            // if we haven't eastablished a connection to the other party yet, do so now,
+            // and on completion, send the files. Otherwise send the files now.
+            var timer = null;
+            $scope.$apply(function() { $scope.filesToSend = files;});
+
+            if ($scope.easyrtc.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
+                // calls between firefrox and chrome ( version 30) have problems one way if you
+                // use data channels.
+                console.log("not conected to anybody");
+
+            }
+            else if ($scope.easyrtc.getConnectStatus(easyrtcid) === $scope.easyrtc.IS_CONNECTED || $scope.noDCs[easyrtcid]) {
+                if (!fileSender) {
+                    fileSender = easyrtc_ft.buildFileSender(easyrtcid, updateStatusDiv);
+                }
+
+                // fileSender(files, true /* assume binary */);
+            }
+            else {
+                $scope.easyrtc.showError("user-error", "Wait for the connection to complete before adding more files!");
+            }
+        }
 
         console.log("Creating dragAnDrop");
         easyrtc_ft.buildDragNDropRegion($scope.dropAreaName+easyrtcid, filesHandler);
