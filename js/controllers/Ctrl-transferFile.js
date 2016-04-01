@@ -1,7 +1,7 @@
 var fileTransferCntrl = angular.module('fileTransferCntrl', []);
 
-fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'sounds',
-    function($scope, $stateParams, $state, $mdDialog, sounds) {
+fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'sounds', 'Upload', '$timeout',
+    function($scope, $stateParams, $state, $mdDialog, sounds, Upload, $timeout) {
 
       $scope.roomId = $stateParams.roomId;
       $scope.myId = false;
@@ -214,6 +214,13 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
                 $scope.easyrtc.showError("user-error", "Wait for the connection to complete before adding more files!");
             }
         }
+        //UPLOAD BUTTON
+        $scope.uploadFiles = function(files) {
+          // $scope.files = files;
+          filesHandler (files)
+          // console.log($scope.files);
+
+        }
 
         console.log("Creating dragAnDrop");
         easyrtc_ft.buildDragNDropRegion($scope.dropAreaName+easyrtcid, filesHandler);
@@ -235,6 +242,8 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
               }, 0);
           });
       };
+
+
 
 
 

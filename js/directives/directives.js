@@ -1,5 +1,6 @@
 var genericDirectives = angular.module('genericDirectives', []);
 
+
 genericDirectives.directive('chat', function () {
     return {
         restrict: 'A',

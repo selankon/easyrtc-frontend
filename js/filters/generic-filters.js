@@ -12,23 +12,26 @@ filters.filter('fileIcon', function() {
   return function(type) {
     console.log("type icon: ", type );
 
+    // MIME file names
+    // http://www.freeformatter.com/mime-types-list.html
     if (type.indexOf("image") > -1)
               return "fa-file-image-o";
     else if (type.indexOf("video") > -1)
               return "fa-file-video-o";
     else if (type.indexOf("audio") > -1)
               return "fa-file-audio-o";
-    // else if ( type.indexOf("html") > -1 ||
-    //           type.indexOf("json") > -1 ||
-    //           type.indexOf("x-markdown") > -1 ||
-    //           type.indexOf("javascript") > -1 ||
-    //           ) return "fa-file-code-o";
-    // else if ( type.indexOf("zip") > -1  ||
-    //           type.indexOf("rar") > -1  ||
-    //           type.indexOf("rar") > -1  ||
-    //           type.indexOf("x-gtar") > -1  ||
-    //           type.indexOf("x-tar") > -1  ||
-    //         ) return "fa-file-archive-o";
+    else if ( (type.indexOf("html") > -1 )||
+              (type.indexOf("bat") > -1 )||
+              (type.indexOf("json") > -1 )||
+              (type.indexOf("x-markdown") > -1 )||
+              (type.indexOf("javascript") > -1 )
+              ) return "fa-file-code-o";
+    else if ( type.indexOf("zip") > -1  ||
+              type.indexOf("rar") > -1  ||
+              type.indexOf("rar") > -1  ||
+              type.indexOf("x-gtar") > -1  ||
+              type.indexOf("x-tar") > -1
+            ) return "fa-file-archive-o";
     else if (type.indexOf("pdf") > -1)
               return "fa-file-pdf-o";
     else if (type.indexOf("text") > -1)
