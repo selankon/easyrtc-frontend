@@ -1,18 +1,18 @@
 var chatCntrl = angular.module('chatCntrl', []);
 
-chatCntrl.controller ('chatCntrlAll', [ '$scope', 'sounds',
-  function($scope, sounds) {
+chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService',
+  function($scope, chatEasyrtcService) {
 
     //**** CHAT MOVIES
     $scope.defaultDestiny = 'To all'
+    $scope.chat = chatEasyrtcService.getMsgLists();
     $scope.destiny = $scope.defaultDestiny;
-    // $scope.chat = {msgList: '', msg: ''};
-    // $scope.chat.msgList = [];
 
-    // $scope.audMsgReceived = function (){
-    //   var audio = new Audio(sounds.chatMessageAlert);
-    //   audio.play();
-    // }
+    $scope.changeDestiny = function (newDest) {
+      if ($scope.destiny == newDest ){ $scope.destiny = $scope.defaultDestiny;}
+      else {$scope.destiny = newDest;}
+      console.log("New destiny: " , newDest);
+    };
 
     $scope.send = function (msg) {
 
@@ -27,38 +27,17 @@ chatCntrl.controller ('chatCntrlAll', [ '$scope', 'sounds',
 
       console.log("Sending message: " , $scope.chat.newMsg);
       if ($scope.destiny == $scope.defaultDestiny) {
-        $scope.easyrtc.sendDataWS({ targetRoom: 'default' }, "message", $scope.chat.newMsg );
+        chatEasyrtcService.sendDataWS({ targetRoom: 'default' }, "message", $scope.chat.newMsg );
       } else {
-        $scope.easyrtc.sendDataWS($scope.chat.newMsg.to, "message", $scope.chat.newMsg);
+        chatEasyrtcService.sendDataWS($scope.chat.newMsg.to, "message", $scope.chat.newMsg);
       }
-      $scope.msgReceived("ME","message", $scope.chat.newMsg);
+      chatEasyrtcService.msgReceived("ME","message", $scope.chat.newMsg);
 
       $scope.destiny = $scope.defaultDestiny;
 
       // $scope.chat.msg = '';
     };
 
-    // $scope.msgReceived = function ( msgType, msg) {
-    //   console.log("AAAAAAAAAAAAAAAAa");
-    //     setTimeout(function() {
-    //         $scope.$apply(function () {
-    //             // if (angular.isObject(msg)) {
-    //             //     who = content.from;
-    //             //     content = content.msg;
-    //             // }
-    //             console.log("Message received!" , msg, "  type  ", msgType );
-    //             $scope.chat.msgList.push(msg);
-    //             // var audio = new Audio(sounds.chatMessageAlert);
-    //             // audio.play();
-    //             $scope.audMsgReceived();
-    //         }, 0);
-    //     });
-    // };
 
-    $scope.changeDestiny = function (newDest) {
-      if ($scope.destiny == newDest ){ $scope.destiny = $scope.defaultDestiny;}
-      else {$scope.destiny = newDest;}
-      console.log("New destiny: " , newDest);
-    };
 
   }]);

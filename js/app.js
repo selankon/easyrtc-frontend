@@ -10,6 +10,7 @@ var easyRtcApp = angular.module('easyRtcApp', [
 
   'chatCntrl',
   'choiceCntrl',
+  'easyrtcHelper',
   'genericFilters',
   'audioVideoCntrl',
   'fileTransferCntrl',

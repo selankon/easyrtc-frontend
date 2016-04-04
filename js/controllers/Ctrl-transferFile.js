@@ -1,13 +1,12 @@
 var fileTransferCntrl = angular.module('fileTransferCntrl', []);
 
-fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'sounds', 'Upload', '$timeout',
-    function($scope, $stateParams, $state, $mdDialog, sounds, Upload, $timeout) {
+fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'sounds', 'Upload', '$timeout', 'easyrtcService', 'chatEasyrtcService',
+    function($scope, $stateParams, $state, $mdDialog, sounds, Upload, $timeout, easyrtcService, chatEasyrtcService) {
 
       $scope.roomId = $stateParams.roomId;
       $scope.myId = false;
       $scope.noDCs = {}; // which users don't support data channels
       $scope.dropAreaName = "droparea_";
-      $scope.easyrtc = easyrtc;
 
 
       // **** Accept file download
@@ -57,76 +56,78 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       //    $scope.showConfirm(params);
       //   });
 
+      // *********************
+      // CONFIGURE AND START CHAT_EASYRTC
+      // *********************
 
-      // **** Custom init and connect to the room
-      $scope.my_init = function () {
-        $scope.easyrtc.enableDataChannels(true);
-        $scope.easyrtc.enableVideo(false);
-        $scope.easyrtc.enableAudio(false);
-        $scope.easyrtc.setPeerListener($scope.msgReceived); //Chat
-
-        //Listener new occupant
-        $scope.easyrtc.setRoomOccupantListener( loggedInListener );
-
-        //Automatic accept checker
-        $scope.easyrtc.setAcceptChecker(function(easyrtcid, responsefn) {
-          responsefn(true);
-        });
-
-        //Conected to user
-        $scope.easyrtc.setDataChannelOpenListener(function(easyrtcid, usesPeer) {
-          console.log("Conected to ", easyrtcid);
-          // $scope.createDragAnDrop(easyrtcid);
-
-        });
-
-        //Disconected to user
-        $scope.easyrtc.setDataChannelCloseListener(function(easyrtcid) {
-          console.log("Disconect to ", easyrtcid);
-        });
-
-        //When connect to Room
-        var loginSuccess = function (myId) {
-          console.log("My easyrtcid is " + myId);
-          $scope.$apply(function() { $scope.myId = myId;});
-          $scope.createDragAnDrop(myId);
-
-          easyrtc_ft.buildFileReceiver(acceptRejectCB, blobAcceptor, receiveStatusCB);
+      chatEasyrtcService.configureChat(
+        function( who ,msgType, msg) {
+           setTimeout(function() {
+               $scope.$apply(function () {
+                   console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
+                  //  $scope.chat.msgList.push(msg);
+                  //  $scope.audMsgReceived();
+                  chatEasyrtcService.updateMsgList (msg);
+                  chatEasyrtcService.playSound(sounds.chatMessageAlert);
+               }, 0);
+           });
         }
+      );
 
-        //Failed to connect to Room
-        var loginFailure = function(errorCode, message) {
-          $scope.easyrtc.showError(errorCode, message);
-          console.log(errorCode, message);
-        }
+      // *********************
+      // CONFIGURE AND START EASYRTC
+      // *********************
 
-        //Connect to Room
-        $scope.easyrtc.connect($scope.roomId, loginSuccess, loginFailure);
-      };
-      $scope.my_init ();
-      // MY INIT FINISH
+      //When connect to Room
+      var loginSuccess = function (myId) {
+        console.log("My easyrtcid is " + myId);
+        $scope.$apply(function() { $scope.myId = myId;});
+        $scope.createDragAnDrop(myId);
 
-      // **** Function that controlls when a new peer is connected
-      function loggedInListener(roomName, otherPeers) {
-         $scope.$apply(function() { $scope.UserList = otherPeers;});
-       };
-       // **** Automatically connect to peer
-       $scope.conectionToPeer = function (easyrtcid){
-         $scope.easyrtc.call(easyrtcid,
-                 function(caller, mediatype) {
-                    console.log("Connecting to ", easyrtcid);
-                 },
-                 function(errorCode, errorText) {
-                    console.log("Connection Failed");
-                    $scope.noDCs[easyrtcid] = true;
-                 },
-                 function wasAccepted(yup) {
-                 }
-         );
-       }
+        easyrtc_ft.buildFileReceiver(acceptRejectCB, blobAcceptor, receiveStatusCB);
+      }
 
+      //Failed to connect to Room
+      var loginFailure = function(errorCode, message) {
+        easyrtcService.showError(errorCode, message);
+        console.log(errorCode, message);
+      }
 
+      $scope.easyrtc = easyrtcService.getEasyrtc();
+      easyrtcService.configureChanels(false);
+      easyrtcService.setAcceptChecker (function(easyrtcid, responsefn) {
+        responsefn(true);
+      });
+      easyrtcService.setRoomOccupantListener (function(roomName, otherPeers) {
+        $scope.$apply(function() { $scope.UserList = otherPeers;});
+      });
+      easyrtcService.setDataChannelOpenListener(function(easyrtcid, usesPeer) {
+        console.log("Conected to ", easyrtcid);
+        // $scope.createDragAnDrop(easyrtcid);
+      });
+      easyrtcService.setDataChannelCloseListener(function(easyrtcid) {
+        console.log("Disconect to ", easyrtcid);
+      });
+      easyrtcService.connect($scope.roomId, loginSuccess, loginFailure);
 
+      // Automatically connect to peer
+      $scope.conectionToPeer = function (easyrtcid){
+        easyrtcService.call(
+          easyrtcid,
+          function(caller, mediatype) {
+             console.log("Calling to ", easyrtcid);
+          },
+          function(errorCode, errorText) {
+             console.log("Call failed Failed");
+             $scope.noDCs[easyrtcid] = true;
+          },
+          function wasAccepted(yup) {}
+        );
+      }
+
+      // *********************
+      // CONFIGURE AND START FT_EASYRTC
+      // *********************
 
       // **** Accept or reject a file from other
       function acceptRejectCB(otherGuy, fileNameList, wasAccepted) {
@@ -163,6 +164,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         return true;
       }
 
+      // Create drag&drop
       $scope.createDragAnDrop = function (easyrtcid) {
 
         function updateStatusDiv(state) {
@@ -226,22 +228,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         easyrtc_ft.buildDragNDropRegion($scope.dropAreaName+easyrtcid, filesHandler);
       }
 
-      //CHAT MOVIES
-      $scope.audMsgReceived = function (){
-        var audio = new Audio(sounds.chatMessageAlert);
-        audio.play();
-      }
-      $scope.chat = {msgList: '', msg: ''};
-      $scope.chat.msgList = [];
-      $scope.msgReceived = function ( who ,msgType, msg) {
-          setTimeout(function() {
-              $scope.$apply(function () {
-                  console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
-                  $scope.chat.msgList.push(msg);
-                  $scope.audMsgReceived();
-              }, 0);
-          });
-      };
+
 
 
 
@@ -254,3 +241,57 @@ fileTransferCntrl.controller ('createFileRoomCntrl', [ '$scope', '$stateParams',
       $scope.baseUrl = URLS.createFileRoom+"/"+URLS.fileTransfer+"/";
 
 }]);
+
+
+// **** Custom init and connect to the room
+// $scope.my_init = function () {
+  // $scope.easyrtc.enableDataChannels(true);
+  // $scope.easyrtc.enableVideo(false);
+  // $scope.easyrtc.enableAudio(false);
+  // $scope.easyrtc.setPeerListener($scope.msgReceived); //Chat
+
+  //Listener new occupant
+  // easyrtc.setRoomOccupantListener( $scope.loggedInListener );
+
+  //Automatic accept checker
+  // easyrtc.setAcceptChecker(function(easyrtcid, responsefn) {
+  //   responsefn(true);
+  // });
+
+  //Conected to user
+  // easyrtc.setDataChannelOpenListener(function(easyrtcid, usesPeer) {
+  //   console.log("Conected to ", easyrtcid);
+  //   // $scope.createDragAnDrop(easyrtcid);
+  //
+  // });
+
+  //Disconected to user
+  // easyrtc.setDataChannelCloseListener(function(easyrtcid) {
+  //   console.log("Disconect to ", easyrtcid);
+  // });
+
+  // //When connect to Room
+  // var loginSuccess = function (myId) {
+  //   console.log("My easyrtcid is " + myId);
+  //   $scope.$apply(function() { $scope.myId = myId;});
+  //   $scope.createDragAnDrop(myId);
+  //
+  //   easyrtc_ft.buildFileReceiver(acceptRejectCB, blobAcceptor, receiveStatusCB);
+  // }
+  //
+  // //Failed to connect to Room
+  // var loginFailure = function(errorCode, message) {
+  //   easyrtc.showError(errorCode, message);
+  //   console.log(errorCode, message);
+  // }
+
+  //Connect to Room
+  // easyrtc.connect($scope.roomId, loginSuccess, loginFailure);
+// };
+// $scope.my_init ();
+
+// **** Function that controlls when a new peer is connected
+// var loggedInListener = function (roomName, otherPeers) {
+//   console.log("Logged in listener");
+//    $scope.$apply(function() { $scope.UserList = otherPeers;});
+//  };
