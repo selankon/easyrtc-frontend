@@ -46,12 +46,12 @@
 
             <!-- Show users list -->
             <div hide-md show-gt-md>
-              <div ng-repeat="user in UserList" ng-click="" layout-align="center center">
-                <p>{{user.easyrtcid}}</p>
-                <div layout="row" layout-align="center center">
+              <div ng-repeat="user in UserList" layout-align="center center">
+                <p ng-click="fileListPetition(user.easyrtcid)">{{user.easyrtcid}}</p>
+                <!-- <div layout="row" layout-align="center center">
                   <span class="md-caption">Send private file </span>
                   <div ng-init='conectionToPeer(user.easyrtcid)' class="button-control" alt="VideoCall" style="background-color:#009688;color:white;"><i class="fa fa-space-shuttle"></i></div>
-                </div>
+                </div> -->
                 <div ng-click="changeDestiny(user.easyrtcid)" class="button-control" style="background-color:#9c27b0;color:white;" alt="VideoCall"><i class="fa fa-comment"></i></div>
                 <md-divider inset></md-divider>
 
@@ -87,7 +87,7 @@
 
               <md-toolbar layout="row" class="md-theme-indigo" >
                     <div class="md-toolbar-tools">
-                      <span>Files list:</span>
+                      <span>Files to Share to anybody:</span>
                     </div>
               </md-toolbar>
               <!-- <md-content>

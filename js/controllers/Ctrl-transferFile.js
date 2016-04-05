@@ -1,12 +1,16 @@
 var fileTransferCntrl = angular.module('fileTransferCntrl', []);
 
-fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'sounds', 'Upload', '$timeout', 'easyrtcService', 'chatEasyrtcService',
-    function($scope, $stateParams, $state, $mdDialog, sounds, Upload, $timeout, easyrtcService, chatEasyrtcService) {
-
+fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'Upload', '$timeout', 'startupEasyrtcService', 'callEasyrtcService', 'ftEasyrtcService', 'chatEasyrtcService', 'fileListsService',
+    function($scope, $stateParams, $state, $mdDialog, Upload, $timeout, startupEasyrtcService, callEasyrtcService, ftEasyrtcService, chatEasyrtcService, fileListsService) {
+      $scope.setMyId = function (value){
+        $scope.myId = value;
+      }
       $scope.roomId = $stateParams.roomId;
-      $scope.myId = false;
+      $scope.setMyId (false);
       $scope.noDCs = {}; // which users don't support data channels
       $scope.dropAreaName = "droparea_";
+
+
 
 
       // **** Accept file download
@@ -57,62 +61,43 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       //   });
 
       // *********************
-      // CONFIGURE AND START CHAT_EASYRTC
-      // *********************
-
-      chatEasyrtcService.configureChat(
-        function( who ,msgType, msg) {
-           setTimeout(function() {
-               $scope.$apply(function () {
-                   console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
-                  //  $scope.chat.msgList.push(msg);
-                  //  $scope.audMsgReceived();
-                  chatEasyrtcService.updateMsgList (msg);
-                  chatEasyrtcService.playSound(sounds.chatMessageAlert);
-               }, 0);
-           });
-        }
-      );
-
-      // *********************
       // CONFIGURE AND START EASYRTC
       // *********************
 
       //When connect to Room
       var loginSuccess = function (myId) {
         console.log("My easyrtcid is " + myId);
-        $scope.$apply(function() { $scope.myId = myId;});
+        $scope.$apply(function() { $scope.setMyId (myId);});
         $scope.createDragAnDrop(myId);
 
-        easyrtc_ft.buildFileReceiver(acceptRejectCB, blobAcceptor, receiveStatusCB);
+        ftEasyrtcService.buildFileReceiver(acceptRejectCB, blobAcceptor, receiveStatusCB);
       }
-
       //Failed to connect to Room
       var loginFailure = function(errorCode, message) {
-        easyrtcService.showError(errorCode, message);
+        startupEasyrtcService.showError(errorCode, message);
         console.log(errorCode, message);
       }
 
-      $scope.easyrtc = easyrtcService.getEasyrtc();
-      easyrtcService.configureChanels(false);
-      easyrtcService.setAcceptChecker (function(easyrtcid, responsefn) {
+      $scope.easyrtc = startupEasyrtcService.getEasyrtc();
+      startupEasyrtcService.configureChanels(false);
+      startupEasyrtcService.setAcceptChecker (function(easyrtcid, responsefn) {
         responsefn(true);
       });
-      easyrtcService.setRoomOccupantListener (function(roomName, otherPeers) {
+      startupEasyrtcService.setRoomOccupantListener (function(roomName, otherPeers) {
         $scope.$apply(function() { $scope.UserList = otherPeers;});
       });
-      easyrtcService.setDataChannelOpenListener(function(easyrtcid, usesPeer) {
+      startupEasyrtcService.setDataChannelOpenListener(function(easyrtcid, usesPeer) {
         console.log("Conected to ", easyrtcid);
         // $scope.createDragAnDrop(easyrtcid);
       });
-      easyrtcService.setDataChannelCloseListener(function(easyrtcid) {
+      startupEasyrtcService.setDataChannelCloseListener(function(easyrtcid) {
         console.log("Disconect to ", easyrtcid);
       });
-      easyrtcService.connect($scope.roomId, loginSuccess, loginFailure);
+      callEasyrtcService.connect($scope.roomId, loginSuccess, loginFailure);
 
       // Automatically connect to peer
       $scope.conectionToPeer = function (easyrtcid){
-        easyrtcService.call(
+        callEasyrtcService.call(
           easyrtcid,
           function(caller, mediatype) {
              console.log("Calling to ", easyrtcid);
@@ -137,7 +122,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
       // **** Save a file
       function blobAcceptor(otherGuy, blob, filename) {
-        easyrtc_ft.saveAs(blob, filename);
+        ftEasyrtcService.saveAs(blob, filename);
       }
 
       // **** The receive messages from the status of transmission
@@ -198,39 +183,95 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
             // and on completion, send the files. Otherwise send the files now.
             var timer = null;
             $scope.$apply(function() { $scope.filesToSend = files;});
+            fileListsService.createOwnFileList($scope.filesToSend);
 
-            if ($scope.easyrtc.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
+
+            if (callEasyrtcService.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
                 // calls between firefrox and chrome ( version 30) have problems one way if you
                 // use data channels.
                 console.log("not conected to anybody");
 
             }
-            else if ($scope.easyrtc.getConnectStatus(easyrtcid) === $scope.easyrtc.IS_CONNECTED || $scope.noDCs[easyrtcid]) {
+            else if (callEasyrtcService.getConnectStatus(easyrtcid) === $scope.easyrtc.IS_CONNECTED || $scope.noDCs[easyrtcid]) {
                 if (!fileSender) {
-                    fileSender = easyrtc_ft.buildFileSender(easyrtcid, updateStatusDiv);
+                    fileSender = ftEasyrtcService.buildFileSender(easyrtcid, updateStatusDiv);
                 }
 
                 // fileSender(files, true /* assume binary */);
             }
             else {
-                $scope.easyrtc.showError("user-error", "Wait for the connection to complete before adding more files!");
+                startupEasyrtcService.showError("user-error", "Wait for the connection to complete before adding more files!");
             }
         }
         //UPLOAD BUTTON
         $scope.uploadFiles = function(files) {
-          // $scope.files = files;
           filesHandler (files)
-          // console.log($scope.files);
-
         }
 
         console.log("Creating dragAnDrop");
-        easyrtc_ft.buildDragNDropRegion($scope.dropAreaName+easyrtcid, filesHandler);
+        ftEasyrtcService.buildDragNDropRegion($scope.dropAreaName+easyrtcid, filesHandler);
+      }
+
+      // *********************
+      // SHARING FILE LIST WITH OTHER USERS
+      // *********************
+      $scope.fileLists = fileListsService.getFileLists();
+      $scope.whoToUpdate;
+      $scope.fileListPetition = function (easyrtcid){
+        chatEasyrtcService.sendMessage("fileListPetition",  $scope.myId, easyrtcid);
+      }
+
+      $scope.fileListReceived = function (from , list){
+
+
+      }
+
+      $scope.fileListUpdate = function (from , list) {
+
+      }
+      $scope.sendFileList  = function ( easyrtcid ) {
+        // chatEasyrtcService.sendMessage("fileListDeliver",  $scope.myId, easyrtcid, $scope.filesToSend);
+        var mssg = {};
+        chatEasyrtcService.createOwnFileList($scope.filesToSend);
+        console.log("Object to send in the message" , mssg);
+        var newMsg  = chatEasyrtcService.newMessage (
+          "fileListDeliver",
+          $scope.myId,
+          easyrtcid,
+          new Date(),
+          mssg,
+          null
+        )
+        console.log("FILES T SEND : " , newMsg);
+
+        chatEasyrtcService.sendDataWS(newMsg.to, newMsg.msgType, newMsg);
+
       }
 
 
+      // *********************
+      // CALLBACK FOR RECEIVE SPECIAL MESSAGES USING CHAT Service
+      // THIS WILL BE USED FOR SHARE THE FILE LIST OF EVERY USER
+      // USER SEND A MESSAGE WITH THE PETITION OF USER FILE LIST.
+      // THIS ANSWER WITH SPECIAL MESSAGE WITH THE LIST
+      // *********************
 
+      chatEasyrtcService.setSpecialChatMessageReceived (
+        function (msg) {
+          // console.log("INSIDE CALLBACK setSpecialChatMessageReceived" , msg);
 
+          switch (msg.msgType) {
+            case "fileListPetition":
+              $scope.sendFileList (msg.from);
+              break;
+            case "fileListDeliver":
+              console.log("FILEWlfldafkwdfsjeafd " , msg);
+              break;
+            default:
+              console.log("Special Chat command no recognized: not recognized");
+          }
+        }
+      )
 
 
 
@@ -242,6 +283,23 @@ fileTransferCntrl.controller ('createFileRoomCntrl', [ '$scope', '$stateParams',
 
 }]);
 
+// // *********************
+// // CONFIGURE AND START CHAT_EASYRTC
+// // *********************
+//
+// chatEasyrtcService.configureChat(
+//   function( who ,msgType, msg) {
+//      setTimeout(function() {
+//          $scope.$apply(function () {
+//              console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
+//             //  $scope.chat.msgList.push(msg);
+//             //  $scope.audMsgReceived();
+//             chatEasyrtcService.updateMsgList (msg);
+//             chatEasyrtcService.playSound(sounds.chatMessageAlert);
+//          }, 0);
+//      });
+//   }
+// );
 
 // **** Custom init and connect to the room
 // $scope.my_init = function () {

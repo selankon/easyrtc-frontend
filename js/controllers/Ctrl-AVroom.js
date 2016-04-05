@@ -1,18 +1,41 @@
 var audioVideoCntrl = angular.module('audioVideoCntrl', []);
 
-audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDialog', '$mdMedia', 'sounds',
-    function($scope, $stateParams, $mdDialog, $mdMedia, sounds) {
+audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDialog', '$mdMedia', 'startupEasyrtcService', 'callEasyrtcService',
+    function($scope, $stateParams, $mdDialog, $mdMedia, startupEasyrtcService, callEasyrtcService) {
+      $scope.setCallInProgres = function (value){
+        $scope.callInProgres = value;
+      };
+      $scope.setMyId = function (value){
+        $scope.myId = value;
+      };
       $scope.roomId = $stateParams.roomId;
-      $scope.myId = false;
-      $scope.callInProgres = false;
-      $scope.easyrtc = easyrtc;
+      $scope.setMyId (false);
+      $scope.setCallInProgres (false);
 
       $scope.$watch(function() { return $mdMedia('gt-sm'); }, function(big) {
          $scope.screenIsSmall = big;
       });
 
+      // *********************
+      // CONFIGURE AND START EASYRTC
+      // *********************
+      $scope.easyrtc = startupEasyrtcService.getEasyrtc();
+      startupEasyrtcService.configureChanels(true);
+      startupEasyrtcService.setRoomOccupantListener( loggedInListener);
+      startupEasyrtcService.setAcceptChecker( acceptChecker );
+
+      // **** LOGGED IN loggedInListener
+      function loggedInListener(roomName, otherPeers) {
+         $scope.$apply(function() { $scope.UserList = otherPeers;});
+         $scope.startVideocallBtn  =  function(easyrtcid) {
+                 return function() {
+                     performCall(easyrtcid);
+                 }
+               };
+       };
+
       // ****  ACCEPT OR REJECT THE CALL
-      $scope.easyrtc.setAcceptChecker(function(easyrtcid, callback) {
+      function acceptChecker (easyrtcid, callback) {
           callerPending = easyrtcid;
           var params = {
             title : "Incoming call",
@@ -32,7 +55,7 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
           $scope.acceptTheCall = function(wasAccepted) {
            //  document.getElementById("acceptCallBox").style.display = "none";
             if( wasAccepted && $scope.easyrtc.getConnectionCount() > 0 ) {
-              $scope.easyrtc.hangupAll();
+              $scope.hangUpAll();
             }
             callback(wasAccepted);
             callerPending = null;
@@ -58,214 +81,102 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
 
          };
          $scope.showConfirm(params);
-        });
-
+        }
 
         // **** INIT ALL AND CONECT
-        $scope.easyrtc.setStreamAcceptor( function(callerEasyrtcid, stream) {
+        callEasyrtcService.setStreamAcceptor( function(callerEasyrtcid, stream) {
           $scope.$apply(function() {
             $scope.callInProgres = stream.streamName;
-            console.log(stream.streamName);
+            console.log("Set stream acceptor " , stream.streamName);
           });
           console.log("New Stream " , stream);
            var video = document.getElementById('caller');
-           $scope.easyrtc.setVideoObjectSrc(video, stream);
+           callEasyrtcService.setVideoObjectSrc(document.getElementById('caller'), stream);
        });
 
         $scope.easyrtc.setOnStreamClosed( function (callerEasyrtcid) {
-          $scope.$apply(function() {$scope.callInProgres = false });
-           $scope.easyrtc.setVideoObjectSrc(document.getElementById('caller'), "");
+          $scope.$apply(function() {$scope.setCallInProgres (false) });
+           callEasyrtcService.setVideoObjectSrc(document.getElementById('caller'), "");
        });
+       //Conect room success
+      var loginSuccess = function (myId) {
+       console.log("My easyrtcid is " + myId);
+       $scope.$apply(function() { $scope.setMyId (myId);});
 
+      }
+      //Failed to connect to Room
+      var loginFailure = function(errorCode, message) {
+         startupEasyrtcService.showError(errorCode, message);
+         console.log(errorCode, message);
+      }
+
+      // **** CONNECT WITH THE SERVER
       $scope.my_init = function (noVideo) {
-         $scope.easyrtc.setRoomOccupantListener( loggedInListener);
-         if (noVideo) {
-           $scope.easyrtc.enableVideo(false);
-           $scope.easyrtc.enableVideoReceive(false);
-         }
-
-         var connectSuccess = function(myId) {
-           $scope.$apply(function() { $scope.myId = myId;});
-           console.log("My easyrtcid is " + myId);
-          }
-          var connectFailure = function(errmesg) {
-              console.log(errmesg);
-          }
-          $scope.easyrtc.initMediaSource(
+          callEasyrtcService.initMediaSource(
                 function(){       // success callback
                     var selfVideo = document.getElementById("self");
-
-                    $scope.easyrtc.setVideoObjectSrc(selfVideo, $scope.easyrtc.getLocalStream());
-                    // For the chat
-                    // $scope.easyrtc.setPeerListener($scope.msgHandler);
-                    $scope.easyrtc.setPeerListener($scope.msgReceived);
-
-                    $scope.easyrtc.connect($scope.roomId, connectSuccess, connectFailure);
+                    callEasyrtcService.setVideoObjectSrc(selfVideo, $scope.easyrtc.getLocalStream());
+                    callEasyrtcService.connect($scope.roomId, loginSuccess, loginFailure);
                 },
-                connectFailure
+                loginFailure
           );
       };
 
-      //CHAT MOVIES
-      $scope.audMsgReceived = function (){
-        var audio = new Audio(sounds.chatMessageAlert);
-        audio.play();
-      }
-      $scope.chat = {msgList: '', msg: ''};
-      $scope.chat.msgList = [];
-      $scope.msgReceived = function ( who ,msgType, msg) {
-          setTimeout(function() {
-              $scope.$apply(function () {
-                  console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
-                  $scope.chat.msgList.push(msg);
-                  $scope.audMsgReceived();
-              }, 0);
-          });
-      };
-
-      // Chat things
-      // $scope.newMsgHandler = false;
-      // $scope.msgContent = {};
-      // $scope.msgHandler = function(who,msgType, msg) {
-      //   $scope.msgContent.who = who;
-      //   $scope.msgContent.msgType = who;
-      //   $scope.msgContent.msg = msg;
-      //   console.log("Msg handler type " ,msgType  , " msg:  " , msg);
-      //
-      //   // console.log("$scope.newMsgHandler" , $scope.newMsgHandler);
-      //   $scope.newMsgHandler = !$scope.newMsgHandler;
-      // };
-
-
-     function loggedInListener(roomName, otherPeers) {
-        $scope.$apply(function() { $scope.UserList = otherPeers;});
-        $scope.startVideocallBtn  =  function(easyrtcid) {
-                return function() {
-                    performCall(easyrtcid);
-                }
-              };
-      };
       $scope.performCall = function (easyrtcid) {
-          $scope.easyrtc.call(
+          callEasyrtcService.call(
              easyrtcid,
              function(easyrtcid) {
                console.log("completed call to " + easyrtcid);
              },
              function(errorMessage) { console.log("err:" + errorMessage);},
              function(accepted, bywho) {
-               $scope.$apply(function() {$scope.callInProgres = true });
-
+               $scope.$apply(function() {$scope.setCallInProgres (true) });
                 console.log((accepted?"accepted":"rejected")+ " by " + bywho);
              }
          );
       };
 
-      // $scope.msgReceived = function (who, msgType, msg) {
-      //     setTimeout(function() {
-      //         $scope.$apply(function () {
-      //             // if (angular.isObject(msg)) {
-      //             //     who = content.from;
-      //             //     content = content.msg;
-      //             // }
-      //             console.log("Message received!" , msg, "  who  " , who);
-      //             $scope.chat.msgList.push(msg);
-      //             var audio = new Audio(sounds.chatMessageAlert);
-      //             audio.play();
-      //         }, 0);
-      //     });
-      // };
-
       //  **** VIDEO CALL BUTTONS AND CONTROLS
       $scope.stopVideo = function (bool , streamName){
         // bool = !bool;
-        $scope.easyrtc.enableCamera(bool,streamName);
+        callEasyrtcService.enableCamera(bool,streamName);
         console.log("Disable video ", bool , " " , streamName);
       };
       $scope.stopMicro = function (bool, streamName){
-        $scope.easyrtc.enableMicrophone(bool,streamName);
+        callEasyrtcService.enableMicrophone(bool,streamName);
         console.log("Disable micro ", bool , " " , streamName);
       };
       $scope.hangUpAll = function (){
-        $scope.callInProgres = false;
-        $scope.easyrtc.hangupAll();
+        $scope.setCallInProgres (false);
+        callEasyrtcService.hangupAll();
       };
       $scope.disconnect = function (){
-        $scope.easyrtc.disconnect();
-        $scope.easyrtc.hangupAll();
-        $scope.easyrtc.clearMediaStream( document.getElementById("self"));
-        $scope.easyrtc.setVideoObjectSrc(document.getElementById("self"),"");
-        $scope.easyrtc.closeLocalMediaStream();
-        $scope.easyrtc.setRoomOccupantListener( function(){});
+        callEasyrtcService.disconnectAll (document.getElementById("self"));
         $scope.UserList = null;
-        $scope.myId = false;
-        $scope.callInProgres=false;
+        $scope.setMyId (false);
+        $scope.setCallInProgres(false);
       };
 
-      // $scope.msgReceived = function (who, msgType, msg) {
+
+
+      //CHAT MOVIES
+      // $scope.audMsgReceived = function (){
+      //   var audio = new Audio(sounds.chatMessageAlert);
+      //   audio.play();
+      // }
+      // $scope.chat = {msgList: '', msg: ''};
+      // $scope.chat.msgList = [];
+      // $scope.msgReceived = function ( who ,msgType, msg) {
       //     setTimeout(function() {
       //         $scope.$apply(function () {
-      //             // if (angular.isObject(msg)) {
-      //             //     who = content.from;
-      //             //     content = content.msg;
-      //             // }
-      //             console.log("Message received!" , msg, "  who  " , who);
+      //             console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
       //             $scope.chat.msgList.push(msg);
-      //             var audio = new Audio(sounds.chatMessageAlert);
-      //             audio.play();
+      //             $scope.audMsgReceived();
       //         }, 0);
       //     });
       // };
 
-      // //**** CHAT MOVIES
-      // $scope.defaultDestiny = 'To all'
-      // $scope.destiny = $scope.defaultDestiny;
-      // $scope.chat = {msgList: '', msg: ''};
-      // $scope.chat.msgList = [];
-      //
-      // $scope.send = function (msg) {
-      //
-      //   // var msg = $scope.chat.newMsg.content;
-      //   $scope.chat.newMsg  =  {
-      //        from :  $scope.myId,
-      //        to: $scope.destiny,
-      //        date : new Date(),
-      //        content : msg,
-      //        meta : null
-      //      };
-      //
-      //   console.log("Sending message: " , $scope.chat.newMsg);
-      //   if ($scope.destiny == $scope.defaultDestiny) {
-      //     $scope.easyrtc.sendDataWS({ targetRoom: 'default' }, "message", $scope.chat.newMsg );
-      //   } else {
-      //     $scope.easyrtc.sendDataWS($scope.chat.newMsg.to, "message", $scope.chat.newMsg);
-      //   }
-      //   $scope.msgReceived("Me", "message", $scope.chat.newMsg);
-      //
-      //   $scope.destiny = $scope.defaultDestiny;
-      //
-      //   // $scope.chat.msg = '';
-      // };
-      //
-      // $scope.msgReceived = function (who, msgType, msg) {
-      //     setTimeout(function() {
-      //         $scope.$apply(function () {
-      //             // if (angular.isObject(msg)) {
-      //             //     who = content.from;
-      //             //     content = content.msg;
-      //             // }
-      //             console.log("Message received!" , msg, "  who  " , who);
-      //             $scope.chat.msgList.push(msg);
-      //             var audio = new Audio(sounds.chatMessageAlert);
-      //             audio.play();
-      //         }, 0);
-      //     });
-      // };
-      //
-      // $scope.changeDestiny = function (newDest) {
-      //   if ($scope.destiny == newDest ){ $scope.destiny = $scope.defaultDestiny;}
-      //   else {$scope.destiny = newDest;}
-      //   console.log("New destiny: " , newDest);
-      // };
+
 
 
 }]);

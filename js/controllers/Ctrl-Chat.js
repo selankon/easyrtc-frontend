@@ -1,7 +1,37 @@
 var chatCntrl = angular.module('chatCntrl', []);
 
-chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService',
-  function($scope, chatEasyrtcService) {
+chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds',
+  function($scope, chatEasyrtcService, sounds) {
+
+    // *********************
+    // CONFIGURE AND START CHAT_EASYRTC
+    // *********************
+
+    //This able you to refactor this on the parent controller for program special messages and responses
+    // $scope.specialChatMessageReceived = function (msg){
+    //   console.log("$scope.specialChatMessageReceived in chat directive" , msg);
+    // }
+
+    chatEasyrtcService.configureChat(
+      function( who ,msgType, msg) {
+         setTimeout(function() {
+             $scope.$apply(function () {
+                 console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
+                //  $scope.chat.msgList.push(msg);
+                //  $scope.audMsgReceived();
+                // $scope.isSpecialMessage = false;
+                // if ($scope.specialChatMessageReceived (msg))
+                // $scope.specialChatMessageReceived (msg)
+                // console.log("$scope.isSpecialMessage" , $scope.isSpecialMessage);
+                // if (!$scope.isSpecialMessage){
+                  chatEasyrtcService.updateMsgList (msg);
+                  chatEasyrtcService.playSound(sounds.chatMessageAlert);
+                // }
+
+             }, 0);
+         });
+      }
+    );
 
     //**** CHAT MOVIES
     $scope.defaultDestiny = 'To all'
@@ -16,22 +46,27 @@ chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService',
 
     $scope.send = function (msg) {
 
-      // var msg = $scope.chat.newMsg.content;
-      $scope.chat.newMsg  =  {
-           from :  $scope.myId,
-           to: $scope.destiny,
-           date : new Date(),
-           content : msg,
-           meta : null
-         };
+      var messageType = "chatMessage";
+      $scope.chat.newMsg  = chatEasyrtcService.newMessage (
+        messageType,
+        $scope.myId,
+        $scope.destiny,
+        new Date(),
+        msg,
+        null
+      )
 
       console.log("Sending message: " , $scope.chat.newMsg);
       if ($scope.destiny == $scope.defaultDestiny) {
+        console.log("CACAACASCSA " , $scope.chat.newMsg);
         chatEasyrtcService.sendDataWS({ targetRoom: 'default' }, "message", $scope.chat.newMsg );
+        // chatEasyrtcService.sendMessage (messageType, $scope.myId, { targetRoom: 'default' }, msg);
       } else {
-        chatEasyrtcService.sendDataWS($scope.chat.newMsg.to, "message", $scope.chat.newMsg);
+        chatEasyrtcService.sendMessage (messageType, $scope.myId, $scope.destiny, msg);
+        // chatEasyrtcService.sendDataWS($scope.chat.newMsg.to, $scope.chat.newMsg.msgType, $scope.chat.newMsg);
       }
-      chatEasyrtcService.msgReceived("ME","message", $scope.chat.newMsg);
+
+      chatEasyrtcService.msgReceived("ME", $scope.chat.newMsg.msgType, $scope.chat.newMsg);
 
       $scope.destiny = $scope.defaultDestiny;
 

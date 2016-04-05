@@ -16,7 +16,8 @@ var easyRtcApp = angular.module('easyRtcApp', [
   'fileTransferCntrl',
   'genericDirectives',
   'easyRtcApp.config',
-  'meterialsControler'
+  'fileTransferHelper',
+  'meterialsControler',
 
 ]);
 easyRtcApp.config(['$urlRouterProvider', '$stateProvider', '$httpProvider', 'URLS',
