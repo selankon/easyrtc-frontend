@@ -44,23 +44,25 @@ easyrtcHelper.factory('chatEasyrtcService', [
     // Send data
     var sendMessage = function (msgType, from, to, msg, meta) {
       var newMsg  = newMessage (msgType, from, to, new Date(), msg, meta)
-      console.log("SENDMAESSAGEEE " , newMsg);
       sendDataWS(newMsg.to, newMsg.msgType, newMsg );
     }
 
     var checkIfIsChatMessage = function (msgType) {
+      console.log("msgType === chatMessage ? true : false;" , msgType === "chatMessage" ? true : false);
       return msgType === "chatMessage" ? true : false;
     }
 
     // When receive a message call the callback funtion
     var msgReceived = function (who ,msgType, msg){
-      console.log("*-- Easyrtc Service chat: msgReceived");
-      if (checkIfIsChatMessage(msgType)) {
+      console.log("*-- Easyrtc Service chat: msgReceived" , msg);
+      if (checkIfIsChatMessage(msg.msgType)) {
         callback (who ,msgType, msg);
-      } else if (specialChatMessageReceived && !(checkIfIsChatMessage(msgType)) ) {
+      } else if (specialChatMessageReceived && !(checkIfIsChatMessage(msg.msgType)) ) {
         specialChatMessageReceived(msg)
         updateMsgList (msg)
+        
       }
+
     }
 
     // Update chat msgList
@@ -69,6 +71,8 @@ easyrtcHelper.factory('chatEasyrtcService', [
       if (checkIfIsChatMessage(msg.msgType)) {
         msgLists.chatList.push(msg);
       }
+
+      // msgLists.chatList.push(msg);
       msgLists.msgList.push(msg);
     }
 

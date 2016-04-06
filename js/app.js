@@ -9,6 +9,7 @@ var easyRtcApp = angular.module('easyRtcApp', [
   'ui.bootstrap',
 
   'chatCntrl',
+  'emojiMenu',
   'choiceCntrl',
   'easyrtcHelper',
   'genericFilters',

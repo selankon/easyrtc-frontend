@@ -7,10 +7,11 @@ chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds'
     // CONFIGURE AND START CHAT_EASYRTC
     // *********************
 
-    //This able you to refactor this on the parent controller for program special messages and responses
-    // $scope.specialChatMessageReceived = function (msg){
-    //   console.log("$scope.specialChatMessageReceived in chat directive" , msg);
-    // }
+    //**** CHAT MOVIES
+    $scope.defaultDestiny = ' all'
+    $scope.chat = chatEasyrtcService.getMsgLists();
+    $scope.destiny = $scope.defaultDestiny;
+
 
     chatEasyrtcService.configureChat(
       function( who ,msgType, msg) {
@@ -24,6 +25,7 @@ chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds'
                 // $scope.specialChatMessageReceived (msg)
                 // console.log("$scope.isSpecialMessage" , $scope.isSpecialMessage);
                 // if (!$scope.isSpecialMessage){
+                  // $scope.chat.chatList.push (msg);
                   chatEasyrtcService.updateMsgList (msg);
                   chatEasyrtcService.playSound(sounds.chatMessageAlert);
                 // }
@@ -33,10 +35,6 @@ chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds'
       }
     );
 
-    //**** CHAT MOVIES
-    $scope.defaultDestiny = 'To all'
-    $scope.chat = chatEasyrtcService.getMsgLists();
-    $scope.destiny = $scope.defaultDestiny;
 
     $scope.changeDestiny = function (newDest) {
       if ($scope.destiny == newDest ){ $scope.destiny = $scope.defaultDestiny;}

@@ -10,6 +10,12 @@ meterialsControler.controller('ToastCtrl',
     };
   });
 
+audioVideoCntrl.controller('menuCntrl',
+  function ($mdDialog, $timeout, $scope) {
+    $scope.openMenu = function($mdOpenMenu, $event) {
+      var menu = $mdOpenMenu($event);
+    };
+});
 
 //MATERIALS THINGS!
 audioVideoCntrl.controller('tutoCntrl', function ($scope, $timeout, $mdSidenav, $log, $mdMedia, $mdToast, $mdDialog) {

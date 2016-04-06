@@ -1,17 +1,48 @@
 <md-content>
 
-  <div layout='row' flex="initial"  layout-align-gt-sm="start start " layout-align="start start ">
-    <!-- chat input text -->
-    <div   layout-align='center end'  ng-class="screenIsSmall ? 'layout-fill' : none">
-      <md-input-container class="md-icon-float md-block">
-        <label>{{destiny}}</label>
-        <md-icon md-font-icon="fa" class="fa fa-comment fa-lg"  style="color:grey;" ng-show="destiny==defaultDestiny" ></md-icon>
-        <md-icon md-font-icon="fa" class="fa fa-comment fa-lg"  style="color:red;" ng-show="!(destiny==defaultDestiny)"  ng-click="changeDestiny(defaultDestiny)"></md-icon>
+  <div layout='row' flex="initial"  layout-align-gt-sm="start start " layout-align="start start " >
+
+    <!-- Emoji menus -->
+
+    <div emojimenu  ng-controller="menuCntrl as ctrl"> </div>
+
+    <!-- <md-menu md-position-mode="target-right target"  >
+      <md-button aria-label="Open phone interactions menu" class="md-icon-button"  id="emojiMenu"  ng-click="ctrl.openMenu($mdOpenMenu, $event)"  >
+        <md-icon md-font-icon="fa" class="fa fa-paw fa-lg"   ></md-icon>
+      </md-button>
+    <md-menu-content width="4" >
+      <md-menu-item>
+        <md-button ng-click="ctrl.redial($event)">
+          <md-icon md-svg-icon="call:dialpad" md-menu-align-target></md-icon>
+          Redial
+        </md-button>
+      </md-menu-item>
+      <md-menu-item>
+        <md-button disabled="disabled" ng-click="ctrl.checkVoicemail()">
+          <md-icon md-svg-icon="call:voicemail"></md-icon>
+          Check voicemail
+        </md-button>
+      </md-menu-item>
+      <md-menu-divider></md-menu-divider>
+      <md-menu-item>
+        <md-button ng-click="ctrl.toggleNotifications()">
+          <md-icon md-svg-icon="social:notifications-{{ctrl.notificationsEnabled ? 'off' : 'on'}}"></md-icon>
+          {{ctrl.notificationsEnabled ? 'Disable' : 'Enable' }} notifications
+        </md-button>
+      </md-menu-item>
+    </md-menu-content>
+    </md-menu> -->
+
+    <div layout-align='center end'  ng-class="screenIsSmall ? 'layout-fill' : none"  >
+
+      <!-- Input text message  -->
+      <md-input-container class="md-icon-float md-block" >
+        <label>To {{destiny}}</label>
         <form ng-submit="send(newMsg);newMsg='';" >
           <input ng-model="newMsg" type="text"  ng-cloak>
         </form>
       </md-input-container>
-      <!-- <span class="md-caption md-warn">Private message to: </span> -->
+
     </div>
     <!-- chat send button -->
     <md-button ng-click="send(newMsg);newMsg='';" class="md-fab md-mini md-primary"  aria-label="sendMessage">
