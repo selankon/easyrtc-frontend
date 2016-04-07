@@ -10,7 +10,7 @@ filters.filter('reverse', function() {
 //This select the correct font-awesome file icon for each file type.
 filters.filter('fileIcon', function() {
   return function(type) {
-    console.log("type icon: ", type );
+    // console.log("type icon: ", type );
 
     // MIME file names
     // http://www.freeformatter.com/mime-types-list.html

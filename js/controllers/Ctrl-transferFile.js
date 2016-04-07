@@ -1,7 +1,7 @@
 var fileTransferCntrl = angular.module('fileTransferCntrl', []);
 
-fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'Upload', '$timeout', 'startupEasyrtcService', 'callEasyrtcService', 'ftEasyrtcService', 'chatEasyrtcService', 'fileListsService',
-    function($scope, $stateParams, $state, $mdDialog, Upload, $timeout, startupEasyrtcService, callEasyrtcService, ftEasyrtcService, chatEasyrtcService, fileListsService) {
+fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'Upload', '$timeout', 'startupEasyrtcService', 'callEasyrtcService', 'ftEasyrtcService', 'chatEasyrtcService', 'fileListsServerService', 'fileListsClientService',
+    function($scope, $stateParams, $state, $mdDialog, Upload, $timeout, startupEasyrtcService, callEasyrtcService, ftEasyrtcService, chatEasyrtcService, fileListsServerService, fileListsClientService) {
       $scope.setMyId = function (value){
         $scope.myId = value;
       }
@@ -183,7 +183,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
             // and on completion, send the files. Otherwise send the files now.
             var timer = null;
             $scope.$apply(function() { $scope.filesToSend = files;});
-            fileListsService.createOwnFileList($scope.filesToSend);
+            $scope.ownFileList = fileListsServerService.createOwnFileList($scope.filesToSend);
 
 
             if (callEasyrtcService.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
@@ -215,34 +215,52 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       // *********************
       // SHARING FILE LIST WITH OTHER USERS
       // *********************
-      $scope.fileLists = fileListsService.getFileLists();
-      $scope.whoToUpdate;
+      $scope.externalfileLists = fileListsClientService.getExternalFileLists();
+      $scope.ownFileList ;
+      $scope.easyrtcidOfSelected ;
+      $scope.selectedFileList ;
+      // $scope.whoToUpdate;
+
+      // Send a file list petition to somebody
       $scope.fileListPetition = function (easyrtcid){
         chatEasyrtcService.sendMessage("fileListPetition",  $scope.myId, easyrtcid);
+        $scope.easyrtcidOfSelected = easyrtcid;
       }
 
+      // When you receive a file list using the callback
       $scope.fileListReceived = function (from , list){
+        fileListsClientService.addSingleFileList (from , list)
+        $scope.$apply(function() {
+          $scope.externalfileLists = fileListsClientService.getExternalFileLists();
+          if (from == $scope.easyrtcidOfSelected) $scope.updateSelectedList(from);
+        });
+      }
 
+      $scope.updateSelectedList = function (easyrtcid) {
+        $scope.selectedFileList =  fileListsClientService.getSingleFileList (easyrtcid , $scope.externalfileLists);
+      }
+
+      $scope.fileListViewUpdate = function (from , list) {
 
       }
 
-      $scope.fileListUpdate = function (from , list) {
+      // $scope.selectFileList = (function) {
+      //
+      // }
 
-      }
+      // Send the own file list to other
       $scope.sendFileList  = function ( easyrtcid ) {
         // chatEasyrtcService.sendMessage("fileListDeliver",  $scope.myId, easyrtcid, $scope.filesToSend);
-        var mssg = {};
-        chatEasyrtcService.createOwnFileList($scope.filesToSend);
-        console.log("Object to send in the message" , mssg);
+        var msg = {};
+        // var filelist = fileListsServerService.createOwnFileList($scope.filesToSend);
         var newMsg  = chatEasyrtcService.newMessage (
           "fileListDeliver",
           $scope.myId,
           easyrtcid,
           new Date(),
-          mssg,
+          fileListsServerService.getOwnFileLists(),
           null
         )
-        console.log("FILES T SEND : " , newMsg);
 
         chatEasyrtcService.sendDataWS(newMsg.to, newMsg.msgType, newMsg);
 
@@ -265,7 +283,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
               $scope.sendFileList (msg.from);
               break;
             case "fileListDeliver":
-              console.log("FILEWlfldafkwdfsjeafd " , msg);
+              $scope.fileListReceived(msg.from, msg.content);
               break;
             default:
               console.log("Special Chat command no recognized: not recognized");

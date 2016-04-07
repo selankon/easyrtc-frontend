@@ -48,7 +48,6 @@ easyrtcHelper.factory('chatEasyrtcService', [
     }
 
     var checkIfIsChatMessage = function (msgType) {
-      console.log("msgType === chatMessage ? true : false;" , msgType === "chatMessage" ? true : false);
       return msgType === "chatMessage" ? true : false;
     }
 
@@ -60,7 +59,7 @@ easyrtcHelper.factory('chatEasyrtcService', [
       } else if (specialChatMessageReceived && !(checkIfIsChatMessage(msg.msgType)) ) {
         specialChatMessageReceived(msg)
         updateMsgList (msg)
-        
+
       }
 
     }
