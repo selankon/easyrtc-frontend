@@ -14,6 +14,7 @@ var easyRtcApp = angular.module('easyRtcApp', [
   'easyrtcHelper',
   'genericFilters',
   'audioVideoCntrl',
+  'emojiMenuHelper',
   'fileTransferCntrl',
   'genericDirectives',
   'easyRtcApp.config',

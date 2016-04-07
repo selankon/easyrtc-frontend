@@ -1,8 +1,8 @@
 var emojiMenu = angular.module('emojiMenu', []);
 
 
-emojiMenu.controller ('emojiMenuCntrl', ['$scope',
-  function($scope) {
+emojiMenu.controller ('emojiMenuCntrl', ['$scope', 'emojiCallback',
+  function($scope, emojiCallback) {
 
 
 
@@ -172,11 +172,9 @@ emojiMenu.controller ('emojiMenuCntrl', ['$scope',
                 "small_red_triangle_down", "shipit"
             ];
 
-            // $scope.onEmojiClicked = function (name) {
-            //   console.log("name");
-            //   $scope.callback({emoji: name});
-            //
-            // }
+            $scope.onEmojiClicked = function (name) {
+              emojiCallback.callback(name);
+            }
 
             // -- Pagination --
             // Setting up the paginator variables

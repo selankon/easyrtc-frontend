@@ -5,37 +5,27 @@
   <md-menu-content  style="height:300px;width:300px;" id="alerts-menu-content">
   <!-- <md-menu-content width="6" > -->
 
-  <md-menu-item >
-    <div layout="column" >
+    <md-menu-item >
+      <div layout="column" >
 
-      <div layout="row" style="color:grey;" layout-align="center center" layout-fill>
-        <i md-menu-disable-close="md-menu-disable-close" class="fa fa-chevron-left"  my-click="updateFilteredEmojis(-1)"></i>
-        {{currentPage}}
-        <i md-menu-disable-close="md-menu-disable-close" class="fa fa-chevron-right" my-click="updateFilteredEmojis(1)"></i>
-      </div>
+        <div layout="row" style="color:grey;" layout-align="center center" layout-fill>
+          <i md-menu-disable-close="md-menu-disable-close" class="fa fa-chevron-left"  my-click="updateFilteredEmojis(-1)"></i>
+          {{currentPage}}
+          <i md-menu-disable-close="md-menu-disable-close" class="fa fa-chevron-right" my-click="updateFilteredEmojis(1)"></i>
+        </div>
 
-      <div layout="row" ng-repeat="items in filteredEmojis" >
-        <!-- item<br> -->
-        <div ng-repeat="emojiName in items" flex>
-          <div layout-fill style="margin-top:10px;">
-            <span  ng-bind-html=' ":"+emojiName+":" | emoji' ng-click="onEmojiClicked(":"+emojiName+":")"></span>
+        <div layout="row" ng-repeat="items in filteredEmojis" >
+          <!-- item<br> -->
+          <div ng-repeat="emojiName in items" flex>
+            <div layout-fill style="margin-top:10px;">
+              <span  ng-bind-html=' ":"+emojiName+":" | emoji' ng-click="onEmojiClicked(':'+emojiName+':')"></span>
+            </div>
           </div>
         </div>
+
       </div>
 
-    </div>
+    </md-menu-item>
 
-    <!-- <div ng-repeat="items in filteredEmojis" class="row">
-        <div ng-repeat="item in items" class="col-md-4">
-            <span  ng-bind-html=' ":"+item+":" | emoji' ></span>
-        </div>
-    </div> -->
-  </md-menu-item>
-
-    <!-- <md-menu-item ng-repeat="emojiName in emojis">
-      <md-button ng-click="showAllEmojis" >
-        <span ng-bind-html=' convertEmoji (emojiName) | emoji'></span>
-      </md-button>
-    </md-menu-item> -->
   </md-menu-content>
 </md-menu>

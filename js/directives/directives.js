@@ -5,7 +5,7 @@ genericDirectives.directive('emojimenu', function () {
     return {
       restrict: 'A',
       templateUrl: "js/directives/templates/emoji-menu.html",
-      controller: 'emojiMenuCntrl'
+      controller: 'emojiMenuCntrl',
 
     }
 });

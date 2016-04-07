@@ -1,7 +1,15 @@
 var chatCntrl = angular.module('chatCntrl', []);
 
-chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds',
-  function($scope, chatEasyrtcService, sounds) {
+chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds', 'emojiCallback',
+  function($scope, chatEasyrtcService, sounds, emojiCallback) {
+
+
+    $scope.insertEmoji = function (name) {
+      if (angular.isUndefined($scope.newMsg)) $scope.newMsg = "";
+      $scope.newMsg += name;
+    }
+
+    emojiCallback.callback = $scope.insertEmoji ;
 
     // *********************
     // CONFIGURE AND START CHAT_EASYRTC
@@ -11,6 +19,12 @@ chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds'
     $scope.defaultDestiny = ' all'
     $scope.chat = chatEasyrtcService.getMsgLists();
     $scope.destiny = $scope.defaultDestiny;
+
+    $scope.mandat = { name: "John", surname: "Doe", person: { id: 1408, firstname: "sam" } };
+        $scope.updatePerson = function(person) {
+            alert(person.firstname);
+          $scope.mandat.person = person;
+        }
 
 
     chatEasyrtcService.configureChat(
