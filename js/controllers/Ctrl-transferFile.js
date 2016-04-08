@@ -10,6 +10,9 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       $scope.noDCs = {}; // which users don't support data channels
       $scope.dropAreaName = "droparea_";
 
+      $scope.filesToSend ;
+      // $scope.transferInProgress = true;
+
 
 
 
@@ -64,13 +67,17 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       // CONFIGURE AND START EASYRTC
       // *********************
 
+      var acceptChecker = function(easyrtcid, responsefn) {
+        responsefn(true);
+      }
+
       //When connect to Room
       var loginSuccess = function (myId) {
         console.log("My easyrtcid is " + myId);
         $scope.$apply(function() { $scope.setMyId (myId);});
         $scope.createDragAnDrop(myId);
 
-        ftEasyrtcService.buildFileReceiver(acceptRejectCB, blobAcceptor, receiveStatusCB);
+        ftEasyrtcService.buildFileReceiver(acceptRejectCB, blobAcceptor, $scope.receiveStatusCB);
       }
       //Failed to connect to Room
       var loginFailure = function(errorCode, message) {
@@ -80,9 +87,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
       $scope.easyrtc = startupEasyrtcService.getEasyrtc();
       startupEasyrtcService.configureChanels(false);
-      startupEasyrtcService.setAcceptChecker (function(easyrtcid, responsefn) {
-        responsefn(true);
-      });
+      startupEasyrtcService.setAcceptChecker (acceptChecker);
       startupEasyrtcService.setRoomOccupantListener (function(roomName, otherPeers) {
         $scope.$apply(function() { $scope.UserList = otherPeers;});
       });
@@ -118,6 +123,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       function acceptRejectCB(otherGuy, fileNameList, wasAccepted) {
         // List the files being offered
         console.log("Files offered: " , fileNameList);
+        wasAccepted(true);
       }
 
       // **** Save a file
@@ -125,58 +131,84 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         ftEasyrtcService.saveAs(blob, filename);
       }
 
+      $scope.transactionStatus  = function  (msg) {
+        return  $scope.transactionMsg = msg;
+      }
+
+      // $scope.findFileOnList = function (name , list ){
+      //   for (x = 0 ; x < list.files.length ; x++){
+      //     if (name == list.files[x].name) {
+      //       return list.files[x];
+      //     }
+      //   }
+      // }
+      var actualBar;
+      $scope.showFileProgress = function (name , list ){
+        for (x = 0 ; x < list.files.length ; x++){
+          if (name == list.files[x].name) {
+            list.files[x].bar.progress = true;
+            // $scope.actualBar = list.files[x].bar;
+            console.log("list.files[x].bar.name" , list.files[x].bar.name);
+            actualBar = angular.element( document.querySelector( list.files[x].bar.name ) );
+            console.log("Actuaklbar" ,actualBar);
+          }
+        }
+      }
+
+      // Get from a list the model of the file that we want to update the download attribute
+      var updateProgressBar = function (nameBar, received, size) {
+
+        // console.log(nameBar , " NAMEBARRRRR");
+        console.log(actualBar , " NAMEBARRRRR");
+        // $scope.$apply(function() { actualBar.attr ('value' , (received/size)*100)  });
+
+
+      }
+
       // **** The receive messages from the status of transmission
-      function receiveStatusCB(otherGuy, msg) {
+      $scope.receiveStatusCB = function (otherGuy, msg) {
+        // console.log("MSG!!!", msg);
         switch (msg.status) {
             case "started":
                 console.log("Started transfer");
+                $scope.transactionStatus ("Started transfer");
                 break;
             case "eof":
                 console.log("Finished file from" , otherGuy);
+                $scope.transactionStatus ("Finished file from" + otherGuy);
                 break;
             case "done":
                 console.log( "Stopped because ", msg.reason, " from" , otherGuy);
+                $scope.transactionStatus ("Stopped because " +  msg.reason + " from" + otherGuy);
                 break;
             case "started_file":
                 console.log("Beginning receive of " , msg.name);
+                $scope.showFileProgress (msg.name , $scope.selectedFileList);
+                $scope.transactionStatus ("Beginning receive of " + msg.name);
                 break;
             case "progress":
-                console.log(msg.name , " " , msg.received , "/" , msg.size);
+                // console.log(msg.name , " " , msg.received , "/" , msg.size);
+                // $scope.transactionStatus (msg.name + " " + msg.received + "/" + msg.size);
+                updateProgressBar (actualBar, msg.received, msg.size, $scope.selectedFileList);
                 break;
             default:
+                $scope.transactionStatus ("strange file receive cb message = "+ JSON.stringify(msg));
                 console.log("strange file receive cb message = ", JSON.stringify(msg));
         }
         return true;
       }
+      // $scope.plusultra  = function () {
+      //   var i = 0;
+      //   $scope.showFileProgress ("JSWhitePaper.zip", $scope.selectedFileList);
+      //
+      //   // updateProgressBar ($scope.actualBar, i=+10 ,8396469 , $scope.selectedFileList);
+      //
+      // }
 
       // Create drag&drop
       $scope.createDragAnDrop = function (easyrtcid) {
 
-        function updateStatusDiv(state) {
-          switch (state.status) {
-              case "waiting":
-                  console.log("waiting for other party to accept transmission");
-                  break;
-              case "started_file":
-                  console.log("started file: " + state.name);
 
-              case "working":
-                  console.log(state.name + ":" + state.position + "/" + state.size + "(" + state.numFiles + " files)");
-
-                  break;
-              case "rejected":
-                  console.log("cancelled");
-
-                  break;
-              case "done":
-                  console.log("done");
-
-                  break;
-          }
-          return true;
-        }
-
-        var fileSender = null;
         function filesHandler(files) {
           console.log("Added files to dragAnDrop " , files);
             // if we haven't eastablished a connection to the other party yet, do so now,
@@ -185,23 +217,6 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
             $scope.$apply(function() { $scope.filesToSend = files;});
             $scope.ownFileList = fileListsServerService.createOwnFileList($scope.filesToSend);
 
-
-            if (callEasyrtcService.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
-                // calls between firefrox and chrome ( version 30) have problems one way if you
-                // use data channels.
-                console.log("not conected to anybody");
-
-            }
-            else if (callEasyrtcService.getConnectStatus(easyrtcid) === $scope.easyrtc.IS_CONNECTED || $scope.noDCs[easyrtcid]) {
-                if (!fileSender) {
-                    fileSender = ftEasyrtcService.buildFileSender(easyrtcid, updateStatusDiv);
-                }
-
-                // fileSender(files, true /* assume binary */);
-            }
-            else {
-                startupEasyrtcService.showError("user-error", "Wait for the connection to complete before adding more files!");
-            }
         }
         //UPLOAD BUTTON
         $scope.uploadFiles = function(files) {
@@ -210,6 +225,52 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
         console.log("Creating dragAnDrop");
         ftEasyrtcService.buildDragNDropRegion($scope.dropAreaName+easyrtcid, filesHandler);
+      }
+
+      function callbackStatusSend(state) {
+        $scope.transferInProgress = true;
+        switch (state.status) {
+            case "waiting":
+                console.log("waiting for other party to accept transmission");
+                break;
+            case "started_file":
+                console.log("started file: " + state.name);
+
+            case "working":
+                console.log(state.name + ":" + state.position + "/" + state.size + "(" + state.numFiles + " files)");
+
+                break;
+            case "rejected":
+                console.log("cancelled");
+
+                break;
+            case "done":
+                console.log("done");
+
+                break;
+        }
+        return true;
+      }
+
+      $scope.send = function (easyrtcid, list) {
+        var fileSender = null;
+        if (callEasyrtcService.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
+            // calls between firefrox and chrome ( version 30) have problems one way if you
+            // use data channels.
+            console.log("not conected to anybody");
+
+        }
+        else if (callEasyrtcService.getConnectStatus(easyrtcid) === $scope.easyrtc.IS_CONNECTED || $scope.noDCs[easyrtcid]) {
+            if (!fileSender) {
+                fileSender = ftEasyrtcService.buildFileSender(easyrtcid, callbackStatusSend);
+            }
+            console.log("GoingToSend");
+
+            fileSender(list , true /* assume binary */);
+        }
+        else {
+            startupEasyrtcService.showError("user-error", "Wait for the connection to complete before adding more files!");
+        }
       }
 
       // *********************
@@ -232,10 +293,12 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         fileListsClientService.addSingleFileList (from , list)
         $scope.$apply(function() {
           $scope.externalfileLists = fileListsClientService.getExternalFileLists();
+          // console.log("$scope.externalfileLists " , $scope.externalfileLists);
           if (from == $scope.easyrtcidOfSelected) $scope.updateSelectedList(from);
         });
       }
 
+      // Update the list that is selected
       $scope.updateSelectedList = function (easyrtcid) {
         $scope.selectedFileList =  fileListsClientService.getSingleFileList (easyrtcid , $scope.externalfileLists);
       }
@@ -243,10 +306,6 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       $scope.fileListViewUpdate = function (from , list) {
 
       }
-
-      // $scope.selectFileList = (function) {
-      //
-      // }
 
       // Send the own file list to other
       $scope.sendFileList  = function ( easyrtcid ) {
@@ -266,6 +325,29 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
       }
 
+      // **** DOWNLOAD FUNCTIONS
+
+      // Send the public file list to somebody that requests
+      $scope.sendPublicFileList = function (easyrtcid){
+        console.log("SENDin TO ", easyrtcid);
+        $scope.conectionToPeer(easyrtcid)
+        $scope.send (easyrtcid, $scope.filesToSend)
+      }
+
+      // Send a petition for download the public list of somebody
+      $scope.publicFileListDownloadPetition = function (easyrtcid){
+
+        var msg = {};
+        var newMsg  = chatEasyrtcService.newMessage (
+          "publicFileListDownloadPetition",
+          $scope.myId,
+          easyrtcid,
+          new Date(),
+          null
+        )
+
+        chatEasyrtcService.sendDataWS(newMsg.to, newMsg.msgType, newMsg);
+      }
 
       // *********************
       // CALLBACK FOR RECEIVE SPECIAL MESSAGES USING CHAT Service
@@ -284,6 +366,9 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
               break;
             case "fileListDeliver":
               $scope.fileListReceived(msg.from, msg.content);
+              break;
+            case "publicFileListDownloadPetition":
+              $scope.sendPublicFileList(msg.from);
               break;
             default:
               console.log("Special Chat command no recognized: not recognized");

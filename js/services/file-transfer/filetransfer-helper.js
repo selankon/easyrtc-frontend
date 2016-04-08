@@ -16,7 +16,10 @@ fileTransferHelper.factory('fileListsServerService', [
       return {
         name : file.name,
         lastModifiedDate : file.lastModifiedDate,
-        size : file.size
+        size : file.size,
+        type : file.type,
+        bar : {name : 'bar'+file.name,
+                progress : false} //Used for calculate the download percentage
       }
     }
 
@@ -121,7 +124,7 @@ fileTransferHelper.factory('fileListsClientService', [
       // console.log("AFTER!!! " , getSingleFileList (temp.id, externalFileLists) );
       // updateModelList(temp.fileList, getSingleFileList (temp.id, externalFileLists));
       // console.log("2 BFORe " , getSingleFileList (temp.id, externalFileLists) );
-      // console.log("EXTERNAL FILE LIST " , externalFileLists);
+      console.log("EXTERNAL FILE LIST " , externalFileLists);
     }
 
 

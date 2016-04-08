@@ -9,6 +9,16 @@ genericDirectives.directive('emojimenu', function () {
 
     }
 });
+genericDirectives.directive('privatemessagebtn', function () {
+    return {
+      restrict: 'A',
+      templateUrl: "js/directives/templates/btn-privatemsg.html",
+      scope: {
+        easyrtcid: "=easyrtcid",
+        changeDestiny: '&'
+      }
+    }
+});
 
 // used for prevent the click propagation on the emojimenu
 genericDirectives.directive('myClick', function ($parse, $rootScope) {

@@ -6,7 +6,7 @@
   <!-- <md-menu-content width="6" > -->
 
     <md-menu-item >
-      <div layout="column" >
+      <div layout="column"  >
 
         <div layout="row" style="color:grey;" layout-align="center center" layout-fill>
           <i md-menu-disable-close="md-menu-disable-close" class="fa fa-chevron-left"  my-click="updateFilteredEmojis(-1)"></i>
@@ -14,7 +14,7 @@
           <i md-menu-disable-close="md-menu-disable-close" class="fa fa-chevron-right" my-click="updateFilteredEmojis(1)"></i>
         </div>
 
-        <div layout="row" ng-repeat="items in filteredEmojis" >
+        <div layout="row" ng-repeat="items in filteredEmojis" class="fade-in ">
           <!-- item<br> -->
           <div ng-repeat="emojiName in items" flex>
             <div layout-fill style="margin-top:10px;">

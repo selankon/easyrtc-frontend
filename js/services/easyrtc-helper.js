@@ -32,7 +32,7 @@ easyrtcHelper.factory('chatEasyrtcService', [
 
     // Configure chat callback function when a message is received
     var configureChat = function (chatCallback){
-      console.log("*-- Easyrtc Service chat: configureChat");
+      // console.log("*-- Easyrtc Service chat: configureChat");
       callback = chatCallback;
       easyrtc.setPeerListener(msgReceived); //Chat
     }
@@ -53,7 +53,7 @@ easyrtcHelper.factory('chatEasyrtcService', [
 
     // When receive a message call the callback funtion
     var msgReceived = function (who ,msgType, msg){
-      console.log("*-- Easyrtc Service chat: msgReceived" , msg);
+      // console.log("*-- Easyrtc Service chat: msgReceived" , msg);
       if (checkIfIsChatMessage(msg.msgType)) {
         callback (who ,msgType, msg);
       } else if (specialChatMessageReceived && !(checkIfIsChatMessage(msg.msgType)) ) {
@@ -66,7 +66,7 @@ easyrtcHelper.factory('chatEasyrtcService', [
 
     // Update chat msgList
     var updateMsgList = function (msg){
-      console.log("*-- Easyrtc Service chat: updateMsgList");
+      // console.log("*-- Easyrtc Service chat: updateMsgList");
       if (checkIfIsChatMessage(msg.msgType)) {
         msgLists.chatList.push(msg);
       }
@@ -108,7 +108,7 @@ easyrtcHelper.factory('ftEasyrtcService', [
 
     // Build file sender for send files
     var buildFileSender = function (easyrtcid, updateStatusDiv){
-      easyrtc_ft.buildFileSender(easyrtcid, updateStatusDiv);
+      return easyrtc_ft.buildFileSender(easyrtcid, updateStatusDiv);
     }
 
     // Build and localiza the drag and drop zone
@@ -165,29 +165,30 @@ easyrtcHelper.factory('callEasyrtcService', [
 
     // Call a peer
     var call = function (otherUser, callSuccessCB, callFailureCB, wasAcceptedCB){
-      console.log("*-- Easyrtc Service call: calling");
+      // console.log("*-- Easyrtc Service call: calling");
       easyrtc.call(otherUser, callSuccessCB, callFailureCB, wasAcceptedCB);
     }
 
     // Connect to easyrtc server
     var connect = function (roomId, OnLoginSuccess, OnLoginFailure){
-      console.log("*-- Easyrtc Service call: connect");
+      // console.log("*-- Easyrtc Service call: connect");
       easyrtc.connect(roomId, OnLoginSuccess, OnLoginFailure);
     }
 
     var getConnectStatus = function (easyrtcid) {
-      easyrtc.getConnectStatus(easyrtcid) ;
+      console.log("CONECTION STATUS !!!! " , easyrtc.getConnectStatus(easyrtcid) , easyrtcid);
+      return easyrtc.getConnectStatus(easyrtcid) ;
     }
 
     // DisConnect to easyrtc server
     var disconnect = function (){
-      console.log("*-- Easyrtc Service call: disconnect");
+      // console.log("*-- Easyrtc Service call: disconnect");
       easyrtc.disconnect();
     }
 
     // DisConnect to easyrtc server and liberate self video stream
     var disconnectAll = function (videoStream){
-      console.log("*-- Easyrtc Service call: disconnect ALL");
+      // console.log("*-- Easyrtc Service call: disconnect ALL");
       disconnect();
       hangupAll ()
       easyrtc.clearMediaStream( videoStream );

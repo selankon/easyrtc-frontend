@@ -76,7 +76,13 @@
                   <div ng-click='my_init(true);performCall(user.easyrtcid)' class="button-control" style="background-color:#3949ab;color:white;" alt="VideoCall"><i class="fa fa-phone"></i></div>
                   <!-- <div ng-click="changeDestiny(user.easyrtcid)" class="button-control" style="background-color:#9c27b0;color:white;" alt="VideoCall"><i class="fa fa-comment"></i></div> -->
 
-                  <div ng-click="changeDestiny(user.easyrtcid); destiny==defaultDestiny ? privateMessageStyle={color:'white'} :  privateMessageStyle={color:'red'} " class="button-control" style="background-color:#9c27b0;" alt="VideoCall" ng-init="privateMessageStyle={color:'white'}">
+                  <div ng-click="
+                  changeDestiny(user.easyrtcid);"
+                  ng-style ="
+                  destiny == user.easyrtcid ? {'color':'red'} :  {'color':'white'} " class="button-control" style="background-color:#9c27b0;" alt="VideoCall" >
+                    <md-tooltip md-direction="right">
+                      Private message
+                    </md-tooltip>
                     <i class="fa fa-comment" ng-style="privateMessageStyle;"></i>
                   </div>
                 </div>
