@@ -53,7 +53,7 @@ chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds'
     $scope.changeDestiny = function (newDest) {
       if ($scope.destiny == newDest ){ $scope.destiny = $scope.defaultDestiny;}
       else {$scope.destiny = newDest;}
-      console.log("New destiny: " , newDest);
+      // console.log("New destiny: " , newDest);
     };
 
     $scope.send = function (msg) {
@@ -68,9 +68,8 @@ chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds'
         null
       )
 
-      console.log("Sending message: " , $scope.chat.newMsg);
+      // console.log("Sending message: " , $scope.chat.newMsg);
       if ($scope.destiny == $scope.defaultDestiny) {
-        console.log("CACAACASCSA " , $scope.chat.newMsg);
         chatEasyrtcService.sendDataWS({ targetRoom: 'default' }, "message", $scope.chat.newMsg );
         // chatEasyrtcService.sendMessage (messageType, $scope.myId, { targetRoom: 'default' }, msg);
       } else {

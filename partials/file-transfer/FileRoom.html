@@ -50,14 +50,13 @@
               ng-class="user.easyrtcid == easyrtcidOfSelected ? 'list-selection' : 'list-selection-unselected' ">
               <div layout="row" layout-align="center start">
 
-                <p ng-click="fileListPetition(user.easyrtcid)" >{{user.easyrtcid}}</p>
+                <p ng-click="fileListPetition(user.easyrtcid); " >{{user.easyrtcid}}</p>
                 <!-- <div layout="row" layout-align="center center">
                   <span class="md-caption">Send private file </span>
                   <div ng-init='conectionToPeer(user.easyrtcid)' class="button-control" alt="VideoCall" style="background-color:#009688;color:white;"><i class="fa fa-space-shuttle"></i></div>
                 </div> -->
 
-                  <div ng-click="
-                  changeDestiny(user.easyrtcid);"
+                  <div ng-click="changeDestiny(user.easyrtcid); "
                   ng-style ="
                   destiny == user.easyrtcid ? {'color':'red'} :  {'color':'white'} " class="button-control" style="background-color:#9c27b0;" alt="VideoCall" >
                   <!-- <div ng-click="changeDestiny(user.easyrtcid); destiny==defaultDestiny ? privateMessageStyle={color:'white'} :  privateMessageStyle={color:'red'} " class="button-control" style="background-color:#9c27b0;" alt="VideoCall" ng-init="privateMessageStyle={color:'white'}"> -->
@@ -79,32 +78,27 @@
         <!-- CENTER -->
         <md-content layout="column"  flex="70">
           <md-content layout="row"   flex>
-
+            {{browseButton}}
             <!-- SELF DRAG AND DROP -->
             <md-content flex="50" layout="column"   class="border-radius"   layout-align="center center" layout-margin>
 
-              <md-content id="{{dropAreaName}}{{myId}}"  class="dragndrop connected drag-n-drop-zone border-radius-high" layout-align="center center" layout="column" flex>
-
-                <!-- <md-content flex layout="row"  layout-align="center center" > -->
-                  <button  id="fileInput"  ngf-select="uploadFiles($files)" multiple class="ng-hide">Select Files</button>
-                  <!-- <input id="fileInput" name="file" type="file" multiple class="ng-hide"> -->
-                  <md-button type="button" class="md-raised md-primary" onclick="document.getElementById('fileInput').click()">Browse files</md-button>
-                <!-- </md-content> -->
-                <!-- <md-content flex layout="row"  layout-align="center center" > -->
+              <md-content id="{{dropAreaName}}{{myId}}"  class="dragndrop connected drag-n-drop-zone border-radius-high" layout-align="center center" layout="column" flex >
+                  <button  id="fileInput"  ngf-select="uploadFiles($files , myId )" multiple class="ng-hide">Select Files</button>
+                  <md-button type="button" class="md-raised md-primary"
+                   onclick="document.getElementById('fileInput').click()">Browse files</md-button>
                   <span class="md-title " >Or Drag&Drop!</span>
-                <!-- </md-content> -->
-
               </md-content>
 
             </md-content>
             <!-- SELF SHOW FILES -->
-            <md-content flex="50" layout="column"   class="border-radius" md-whiteframe="5">
+            <md-content flex="50" layout="column"   md-whiteframe="5">
 
-              <md-toolbar layout="row" class="md-theme-indigo" >
+              <!-- <md-toolbar layout="row" class="md-theme-indigo" >
                     <div class="md-toolbar-tools">
-                      <span>Files to Share to everybody:</span>
+                      <span>Files to Share with everybody:</span>
                     </div>
-              </md-toolbar>
+              </md-toolbar> -->
+
               <!-- <md-content>
                 <md-list class="md-dense" >
                   <md-subheader class="md-no-sticky">3 line item (dense)</md-subheader>
@@ -114,13 +108,41 @@
                     <md-divider ></md-divider>
                   </md-list>
                 </md-content> -->
-<!-- <md-content layout="row" ng-repeat="file in filesToSend"  > -->
-              <div ng-repeat="file in filesToSend"  class="file-list-element" flex>
-                <!-- <span ng-bind-html='file.type | fileIcon'></span> -->
-                <i class="fa {{file.type | fileIcon }} fa-lg"></i>
-                {{file.name}}
-                <md-divider ></md-divider>
-              </div>
+              <!-- <md-tabs md-dynamic-height md-border-bottom>
+                <md-tab label="Public">
+                  <md-content class="md-padding">
+                    <div ng-repeat="file in ownFileList.files"  class="file-list-element" class="file-list-element" flex>
+                        <i class="fa {{file.type | fileIcon }} fa-lg"></i>
+                        {{file.name}} -
+                        <strong>{{file.size | bytes}}</strong>
+                        <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}% to {{actualUserReceiver}}</span>
+                        <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
+                        <md-divider ></md-divider>
+                    </div>
+                  </md-content>
+                </md-tab>
+              </md-tabs> -->
+              <!-- <div  class="button-control" style="background-color:#3949ab;color:white;" ng-click="selected('null')">
+                <i class="fa fa-cloud-download"></i>
+              </div>{{selectedDestiny}} -->
+              <md-tabs md-border-bottom md-autoselect md-dynamic-height md-selected="selectedIndex" >
+                <md-tab ng-repeat="list in ownFileList"
+                  label="{{list.destiny == myId ? 'PUBLIC' : list.destiny}}"
+                   md-on-select="selected(list)"
+                   ng-init="selectedDestiny=list.destiny">
+
+                  <md-button class="md-primary md-raised" ng-click="removeTab( list )">Remove Tab</md-button>
+
+                  <div ng-repeat="file in list.files"  class="file-list-element" class="file-list-element" flex>
+                      <i class="fa {{file.type | fileIcon }} fa-lg"></i>
+                      {{file.name}} -
+                      <strong>{{file.size | bytes}}</strong>
+                      <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}% <span class="md-caption">to {{actualUserReceiver}}</span></span>
+                      <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
+                      <md-divider ></md-divider>
+                  </div>
+                </md-tab>
+              </md-tabs>
 
             <!-- </md-content> -->
 
@@ -129,9 +151,10 @@
 
           </md-content>
 
+         <!-- BOTTOM SPACE -->
           <md-content layout="row"  flex="50" >
             <md-content flex="50" layout="column"   class="border-radius" md-whiteframe="5">
-
+              <!-- BOTTOM FILE LIST -->
               <md-toolbar layout="row" class="md-theme-indigo" >
                     <div class="md-toolbar-tools">
                       <span>
@@ -143,13 +166,15 @@
 
               <div ng-repeat="file in selectedFileList.files"  class="file-list-element" class="file-list-element" ng-model="file.bar.name" flex>
                 <i class="fa {{file.type | fileIcon }} fa-lg"></i>
-                {{file.name}}
-                <md-progress-linear md-mode="determinate" value="{{attr}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
+                {{file.name}} -
+                <strong>{{file.size | bytes}}</strong>
+                <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}%</span>
+                <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
                 <md-divider ></md-divider>
-
               </div>
-
             </md-content>
+
+            <!-- MENU DOWNLOAD OR UPDATE -->
             <md-content flex="50" layout="column" ng-show="easyrtcidOfSelected" >
               <md-content flex="25" layout="row" layout-align="center center">
                 <md-content flex layout="column" layout-align="center center">
@@ -166,53 +191,33 @@
                       </md-tooltip>
                       <i class="fa fa-cloud-download"></i>
                     </div>
-                    <div  class="button-control" style="background-color:#3949ab;color:white;" ng-click="plusultra()">
-                      <i class="fa fa-cloud-download"></i>
-                    </div>
                   </md-content>
-
-
-                  <!-- <div privatemessagebtn easyrtcid="easyrtcidOfSelected" changeDestiny="changeDestiny(id)" > </div> -->
-                  <!-- <div class="button-control" style="background-color:#9c27b0;color:white;">
-                    <i class="fa fa-comment" ng-style="privateMessageStyle;"></i>
-                  </div> -->
-
-                <!-- <md-content ng-repeat="list in externalfileLists"  class="file-list-element" flex>
-                  {{list.id}}
-                  <md-divider ></md-divider>
-                </md-content> -->
-                <md-content flex layout="row" layout-align="center center">
-                  <span class="md-caption">{{transactionMsg}}</span>
-                </md-content>
-
+                  <md-content flex layout="row" layout-align="center center">
+                    <span class="md-caption">{{transactionMsg}}</span>
+                  </md-content>
+                  <!-- {{easyrtcidOfSelected}} -->
 
                 </md-content>
               </md-content>
 
-               <!-- Private drag and drop -->
+               <!-- PRIVATE DRAG&DROP-->
               <md-content flex="75" layout="column"   class="border-radius"   layout-align="start start">
 
                 <span class="md-caption">Send files privately: </span>
-                <md-content id="{{dropAreaName}}{{myId}}"  class="dragndrop connected drag-n-drop-zone border-radius-high" layout-align="center center" layout="column" >
+                <md-content id="{{dropAreaName}}{{easyrtcidOfSelected}}"  class="dragndrop connected drag-n-drop-zone border-radius-high" layout-align="center center" ng-model="privateDragNDrop" layout="column" >
 
-                  <!-- <md-content flex layout="row"  layout-align="center center" > -->
-                    <button  id="fileInput"  ngf-select="uploadFiles($files)" multiple class="ng-hide">Select Files</button>
-                    <!-- <input id="fileInput" name="file" type="file" multiple class="ng-hide"> -->
-                    <md-button type="button" class="md-raised md-primary" onclick="document.getElementById('fileInput').click()">Browse files</md-button>
-                  <!-- </md-content> -->
-                  <!-- <md-content flex layout="row"  layout-align="center center" > -->
+                    <button  id="fileInputPrivate"  ngf-select="uploadFiles($files , easyrtcidOfSelected )" multiple class="ng-hide">Select Files</button>
+                    <md-button type="button" class="md-raised md-primary" onclick="document.getElementById('fileInputPrivate').click()" >Browse files</md-button>
                     <span class="md-title " >Or Drag&Drop!</span>
-                  <!-- </md-content> -->
+                    <!-- createDragAnDrop(user.easyrtcid); -->
 
                 </md-content>
+                <!-- <div ng-if="privateDragNDrop">
+                    <script type="text/javascript">
+                        $scope.createDragAnDrop ($scope.easyrtcidOfSelected);
+                    </script>
+                </div> -->
               </md-content>
-
-               <!-- Progress barr -->
-              <!-- <md-content flex="75" layout="column"   class="border-radius"   layout-align="start start" ng-hide="transferInProgress" ng-show="transferInProgress">
-
-                <span class="md-caption">Send files privately: </span>
-
-              </md-content> -->
 
             </md-content>
           </md-content>

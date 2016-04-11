@@ -7,6 +7,17 @@ filters.filter('reverse', function() {
   };
 });
 
+filters.filter('bytes', function() { //https://gist.github.com/thomseddon/3511330
+	return function(bytes, precision) {
+		if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
+		if (typeof precision === 'undefined') precision = 1;
+    if (bytes === 0) { return '0 bytes' }
+		var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
+			number = Math.floor(Math.log(bytes) / Math.log(1024));
+		return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) +  ' ' + units[number];
+	}
+});
+
 //This select the correct font-awesome file icon for each file type.
 filters.filter('fileIcon', function() {
   return function(type) {
