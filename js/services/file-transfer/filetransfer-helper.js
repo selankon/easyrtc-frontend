@@ -30,15 +30,17 @@ fileTransferHelper.factory('fileListsServerService', [
 
     // Get a file list
     var getListFromListOfList = function (destiny , list) {
-      for (x = 0 ; x < list.length ; x++){
-        if (destiny == list[x].destiny) {
-          // console.log("FINDED!!! ");
-          return list[x];
+      if ( !(angular.isUndefined(list) || list === null)  ){
+        for (x = 0 ; x < list.length ; x++){
+          if (destiny == list[x].destiny) {
+            // console.log("FINDED!!! ");
+            return list[x];
+          }
+          // console.log("NOT YET  " , list[x].destiny);
         }
-        // console.log("NOT YET  " , list[x].destiny);
+        return false;
       }
       return false;
-
     }
 
     // update list form listOfLists
@@ -52,10 +54,11 @@ fileTransferHelper.factory('fileListsServerService', [
       return false;
     }
 
+    // Remove a list of files
     var removeList =  function (destiny, listOfLists) {
       for (x = 0 ; x < listOfLists.length ; x++ ) {
         if (listOfLists[x].destiny == destiny) {
-          listOfLists[x].splice(x,1);
+          listOfLists.splice(x,1);
           return true;
         }
       }
@@ -104,6 +107,7 @@ fileTransferHelper.factory('fileListsServerService', [
         updateList( createOwnFileList(filesToSend, destiny) , ownFileListsOfList);
       }
       // console.log("ownFileListsOfList " , ownFileListsOfList);
+      console.log("ownFileListsOfList! " , ownFileListsOfList);
       return ownFileListsOfList;
     }
 
@@ -124,8 +128,8 @@ fileTransferHelper.factory('fileListsServerService', [
       getListFromListOfList : function (destiny , list) {
         return getListFromListOfList (destiny , list);
       },
-      removeList : function (obj, listOfLists) {
-        return getListFromListOfList (obj, listOfLists);
+      removeList : function (destiny, listOfLists) {
+        return removeList (destiny, listOfLists);
       },
 
 
@@ -140,45 +144,91 @@ fileTransferHelper.factory('fileListsClientService', [
     var externalFileLists = [];
     var getExternalFileLists = function () { return externalFileLists; }
 
+    // ************************
+    // ***  OLD
+    // ************************
+
+    // // Check if the file list is in his last version
+    // var isFileListUpdated = function (list, model) {
+    //   if ( model.creationDate  == list.creationDate ) {
+    //     return true;
+    //   }
+    //   else {
+    //     return false;
+    //   }
+    //   return false;
+    // }
+    //
+    //
+    //
+
+
+
+    // ************************
+    // *** NEW ONES
+    // ************************
+
     // Check if a user have a fileList registered
-    var existFileList = function (from, listOfLists) {
-      if (getSingleFileList(from, listOfLists) ) {
+    var existList = function (from, listOfLists) {
+      if (getFileListFromId(from, listOfLists)) {
         return true;
       }
       return false;
     }
 
-
-    // Check if the file list is in his last version
-    var isFileListUpdated = function (list, model) {
-      if ( model.creationDate  == list.creationDate ) {
-        // console.log("SAME DATE");
-        return true;
-      }
-      else {
-        // console.log("NOTSAMEDATE");
-        return false;
-      }
-      return false;
-    }
-
-    // get a file list if exit if not return false
-    var getSingleFileList = function (easyrtcid, listOfLists) {
+    // Return the files list from specific user list
+    var getFileListFromId = function (from, listOfLists) {
       for (x = 0 ; x < listOfLists.length ; x++ ) {
-        if (listOfLists[x].id == easyrtcid) {
-          return listOfLists[x].fileList;
+        if (listOfLists[x].id == from) {
+          return listOfLists[x].fileLists;
+        }
+      }
+      return false;
+    }
+
+    // Remove a list of files
+    var removeList =  function (destiny, fileLists) {
+      for (x = 0 ; x < fileLists.length ; x++ ) {
+        if (fileLists[x].destiny == destiny) {
+          fileLists.splice(x,1);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // ************************
+    // *** REFACTORED OLD
+    // ************************
+
+    // Get a file the list of files inside the fileLists
+    // getSingleFileList
+    var getFilesFromList = function (easyrtcid, fileLists) {
+      for (x = 0 ; x < fileLists.length ; x++ ) {
+        if (fileLists[x].destiny == easyrtcid) {
+          return fileLists[x].files;
         }
       }
       return false;
     }
 
 
-    // newObj = result of getSingleFileList
-    var updateModelList = function (newObj, listOfLists) {
-      for (x = 0 ; x < listOfLists.length ; x++ ) {
-        if (listOfLists[x].id == newObj.id) {
-          listOfLists[x].fileList = newObj.fileList;
+    // Update a file list from a fileLists
+    var updateModelList = function (newObj, fileLists) {
+      for (x = 0 ; x < fileLists.length ; x++ ) {
+        if (fileLists[x].destiny == newObj.destiny) {
+          fileLists[x] = newObj;
           return true;
+        }
+      }
+      return false;
+    }
+
+    // Get alls tored lists (privated and public) of a user
+    var getAllListOfUser = function (easyrtcid, listOfLists) {
+      for (x = 0 ; x < listOfLists.length ; x++ ) {
+        if (listOfLists[x].id == easyrtcid) {
+          return listOfLists[x];
         }
       }
       return false;
@@ -186,19 +236,43 @@ fileTransferHelper.factory('fileListsClientService', [
 
     // Add a file list if doesn't exist
     var addSingleFileList = function (from , list) {
-      var temp = {id : from , fileList : list};
 
-      // isFileListUpdated(temp.fileList, getSingleFileList (temp.id, externalFileLists) );
 
-      if ( !existFileList(from, externalFileLists) ) {
-        console.log("pushing...... ");
+      // If not exist the lists of this user directly create it the lists
+      if ( !(existList(from, externalFileLists)) ) {
+        console.log("pushing list to externalFileLists...... ");
+        var temp = {id : from , fileLists : []};
+        temp.fileLists.push(list)
         externalFileLists.push (temp);
       }
-      else if (!isFileListUpdated(temp.fileList, getSingleFileList (temp.id, externalFileLists) )) {
-        updateModelList(temp, externalFileLists );
+      //If the list exists
+      else {
+        // You can have a private or a public file list, check if is one of this, in other words, if the file  list received exist inside the list
+        var temp = getFileListFromId (from , externalFileLists);
+        if (getFilesFromList (list.destiny , temp ) ) {
+          // If exits update it
+          console.log("Updating list...");
+          updateModelList (list , temp );
+        }
+        // Else push it
+        else {
+          // var filelists = getFileListFromId (from , externalFileLists);
+          temp.push(list);
+        }
       }
+
       console.log("EXTERNAL FILE LIST " , externalFileLists);
     }
+
+
+        // Check if a list is a public filelist (sender and destiny are the same)
+        // var isPublicFileList = function (id, list) {
+        //   if (list.destiny == id ) {
+        //     return true;
+        //   }
+        //   return false;
+        // }
+
 
 
     return {
@@ -208,9 +282,15 @@ fileTransferHelper.factory('fileListsClientService', [
       addSingleFileList : function (from , list) {
         return addSingleFileList (from , list)
       },
-      getSingleFileList : function (from , list) {
-        return getSingleFileList (from , list)
-      }
+      // getSingleFileList : function (from , list) {
+      //   return getSingleFileList (from , list)
+      // },
+      getAllListOfUser : function (from , list) {
+        return getAllListOfUser (from , list)
+      },
+      removeList : function (destiny, listOfLists) {
+        return removeList (destiny, listOfLists);
+      },
     }
 
 

@@ -12,56 +12,6 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       $scope.filesToSend = [];
       // $scope.transferInProgress = true;
 
-
-
-
-      // **** Accept file download
-      // $scope.easyrtc.setAcceptChecker(function(easyrtcid, responsefn) {
-      //     var params = {
-      //       title : "Download File",
-      //       textContent : null,
-      //       ariaLabel : "Download File",
-      //       ok : "Download",
-      //       cancel : "Reject"
-      //     };
-      //     if( $scope.easyrtc.getConnectionCount() > 0 ) {
-      //       params.textContent = "Cancel file transfer from " + $scope.easyrtc.idToName(easyrtcid) + " ?";
-      //     }
-      //     else {
-      //       params.textContent = "Accept download file from " + $scope.easyrtc.idToName(easyrtcid) + " ?";
-      //     }
-      //     console.log("incoming call", params.textContent);
-      //
-      //     $scope.acceptTheCall = function(wasAccepted) {
-      //      //  document.getElementById("acceptCallBox").style.display = "none";
-      //       if( wasAccepted && $scope.easyrtc.getConnectionCount() > 0 ) {
-      //         $scope.easyrtc.hangupAll();
-      //       }
-      //       responsefn(wasAccepted);
-      //     };
-      //
-      //    //Show dialog
-      //    $scope.showConfirm = function(data) {
-      //      // Appending dialog to document.body to cover sidenav in docs app
-      //      var confirm = $mdDialog.confirm()
-      //            .title(data.title)
-      //            .textContent(data.textContent)
-      //            .ariaLabel(data.ariaLabel)
-      //            .ok(data.ok)
-      //            .cancel(data.cancel);
-      //      $mdDialog.show(confirm).then(function() {
-      //        $scope.status = 'File accepted.';
-      //        $scope.acceptTheCall (true);
-      //      }, function() {
-      //        $scope.acceptTheCall (false);
-      //        $scope.status = 'File rejected.';
-      //        alert ($scope.status);
-      //      });
-      //
-      //    };
-      //    $scope.showConfirm(params);
-      //   });
-
       // *********************
       // CONFIGURE AND START EASYRTC
       // *********************
@@ -76,7 +26,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         $scope.$apply(function() { $scope.setMyId (myId);});
         $scope.createDragAnDrop(myId);
 
-        ftEasyrtcService.buildFileReceiver(acceptRejectCB, blobAcceptor, $scope.receiveStatusCB);
+        ftEasyrtcService.buildFileReceiver(acceptRejectCB, blobAcceptor, receiveStatusCB);
       }
       //Failed to connect to Room
       var loginFailure = function(errorCode, message) {
@@ -84,6 +34,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         console.log(errorCode, message);
       }
 
+      // Configuring easyrtc
       $scope.easyrtc = startupEasyrtcService.getEasyrtc();
       startupEasyrtcService.configureChanels(false);
       startupEasyrtcService.setAcceptChecker (acceptChecker);
@@ -100,6 +51,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
       // Automatically connect to peer
       $scope.conectionToPeer = function (easyrtcid){
+        // console.log("CONECTION TO PEER");
         callEasyrtcService.call(
           easyrtcid,
           function(caller, mediatype) {
@@ -120,8 +72,9 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       // **** Accept or reject a file from other
       function acceptRejectCB(otherGuy, fileNameList, wasAccepted) {
         // List the files being offered
-        console.log("Files offered: " , fileNameList);
-        wasAccepted(true);
+        console.log("Files offered: " , fileNameList , " from " , otherGuy);
+        $scope.acceptChecker (otherGuy, fileNameList, wasAccepted);
+        // wasAccepted(true);
       }
 
       // **** Save a file
@@ -143,17 +96,6 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         }
       }
 
-      // **** Get list using destiny from a list of lists
-      // $scope.getListFromListOfList = function (destiny , list ){
-      //   for (x = 0 ; x < list.length ; x++){
-      //     if (destiny == list[x].destiny) {
-      //       console.log("FINDED!!! ");
-      //       return list[x];
-      //     }
-      //     console.log("NOT YET  " , list[x].destiny);
-      //   }
-      // }
-
       // Get the bar object from a file objecy
       $scope.getBarFromFile = function (file){
         return file.bar;
@@ -165,11 +107,10 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         console.log($scope.actualBar.progress , "  Actual bar progress ");
       }
 
-
       // **** The receive messages from the status of transmission
       $scope.actualBar; // Actual progress bar to be updated
       $scope.actualUserReceiver; // Actual user who is receiving your data
-      $scope.receiveStatusCB = function (otherGuy, msg) {
+      var receiveStatusCB = function (otherGuy, msg) {
         // console.log("MSG!!!", msg);
         switch (msg.status) {
             case "started":
@@ -242,19 +183,15 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         return true;
       }
 
-      // $scope.selectedIndex;// Used on the tabs
-    //   $scope.$watch('selectedIndex', function(current, old){
-    //     console.log('Goodbye ' + old + '!' , current);
-    //   // if ( old + 1 && (old != current)) console.log('Goodbye ' + old + '!');
-    //   // if ( current + 1 )                console.log('Hello ' + current + '!');
-    // });
-    $scope.selectedDestiny  = function (list) {
-        if ( !(angular.isUndefined(tab) || tab === null)  ) {
-          $scope.selectedDestiny = list.destiny;
-          console.log("Selected destiny " , list.destiny);
-        }
 
-    }
+
+      $scope.selectedDestiny  = function (list) {
+          if ( !(angular.isUndefined(tab) || tab === null)  ) {
+            $scope.selectedDestiny = list.destiny;
+            console.log("Selected destiny " , list.destiny);
+          }
+
+      }
 
       // Watching if a specific drag and drop is created
       $scope.$watch('easyrtcidOfSelected', function(newValue, oldValue) {
@@ -265,17 +202,22 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
           }, 1000);
       });
 
+
+
       // If the destinyEasyrtcid = myId means that is public list
       $scope.filesAdded = function (files , destinyEasyrtcid) {
-        // $scope.$apply(function() {
           $scope.filesToSend = fileListsServerService.addToListOfFileListObject(files, destinyEasyrtcid );
           $scope.ownFileList =  fileListsServerService.addToOwnFileListOfList(files, destinyEasyrtcid );
           $scope.selectedDestiny = destinyEasyrtcid;
-        // });
+
+          // If is a privated list, make the offer of the list to the user
+          if ( !(destinyEasyrtcid == $scope.myId) ){
+            $scope.sendPrivateFileList (destinyEasyrtcid);
+          }
       }
       //UPLOAD BUTTON
       $scope.uploadFiles = function(files , easyrtcid) {
-        console.log("BTN browse files " , files, easyrtcid);
+        // console.log("BTN browse files " , files, easyrtcid);
         $scope.filesAdded (files, easyrtcid)
       }
 
@@ -292,6 +234,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         ftEasyrtcService.buildDragNDropRegion($scope.dropAreaName+easyrtcid, $scope.filesHandler);
       }
 
+      // Create the filesender and send the files
       $scope.send = function (easyrtcid, list) {
         var fileSender = null;
         if (callEasyrtcService.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
@@ -339,18 +282,59 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         });
       }
 
+      // When you recive a private file list
+      $scope.privateListOffer = function (from , content){
+        console.log("PRIVATE LIST OFER :@@@@@" , from, content);
+        $mdDialog.show(
+         $mdDialog.alert()
+          //  .parent(angular.element(document.querySelector('#popupContainer')))
+           .clickOutsideToClose(true)
+           .title('Private list received')
+           .textContent('You received a private list of files from '+from+', check the bottom tabs for download.')
+           .ariaLabel('APrivate List received')
+           .ok('Got it!')
+          //  .targetEvent(ev)
+       );
+       $scope.easyrtcidOfSelected = from;
+       $scope.fileListReceived (from , content);
+      }
+
       // Update the list that is selected
       $scope.updateSelectedList = function (easyrtcid) {
-        $scope.selectedFileList =  fileListsClientService.getSingleFileList (easyrtcid , $scope.externalfileLists);
+
+        //This is for get the list for build the tabs
+        $scope.tabs =  fileListsClientService.getAllListOfUser (easyrtcid , $scope.externalfileLists);
+
       }
 
-      $scope.fileListViewUpdate = function (from , list) {
+      // $scope.updateSelectedFileList = function (list) {
+      //   //This one is for get things of the file list that we are downloading, and get for example the progress bar
+      //
+      //   // $scope.selectedFileList =  fileListsClientService.getSingleFileList (list.destiny , $scope.tabs.fileLists);
+      //   console.log(" AQUI TENGO KE UPDATERAR --- Selected file list :@" , $scope.selectedFileList);
+      // }
 
+      // For remove a list of the listOflist using the tabs
+      $scope.removeTab = function ( list ) {
+        fileListsServerService.removeList ( list.destiny , $scope.filesToSend);
+        fileListsServerService.removeList ( list.destiny , $scope.ownFileList);
+      }
+      $scope.removeTabExternals = function ( list ) {
+        // fileListsClientService.removeList ( list.destiny , $scope.externalfileLists);
+        putavida ++ ;
       }
 
-      // Send the own file list to other (ALWAYS PUBLIC LIST!!)
+      // **** DOWNLOAD LIST FUNCTIONS
+
+      // Send the public file list to somebody that requests
+      $scope.sendPublicFileList = function (to){
+        $scope.conectionToPeer(to)
+        $scope.send (to, fileListsServerService.getListFromListOfList ($scope.myId , $scope.filesToSend) )
+        $scope.ownFileList =  fileListsServerService.getListFromListOfList ($scope.myId , $scope.filesToSend) ;
+      }
+
+      // Send the own file list to other (ALWAYS PUBLIC LIST!! list where destiny easyrtcid == $scope.myId )
       $scope.sendFileList  = function ( easyrtcid ) {
-        var msg = {};
         var newMsg  = chatEasyrtcService.newMessage (
           "fileListDeliver",
           $scope.myId,
@@ -364,28 +348,49 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
       }
 
-      // For remove a list of the listOflist
-      $scope.removeTab = function ( list ) {
-        fileListsServerService.removeList ( list.destiny , $scope.filesToSend);
-        fileListsServerService.removeList ( list.destiny , $scope.ownFileList);
+      // Send a private file list offer to a user, getting the list asociated to his easyrtcid
+      $scope.sendPrivateFileList = function (easyrtcid){
+        var newMsg  = chatEasyrtcService.newMessage (
+          "privateListOffer", //fileListDeliver
+          $scope.myId,
+          easyrtcid,
+          new Date(),
+          fileListsServerService.getListFromListOfList(easyrtcid, $scope.ownFileList),
+          null
+        )
+        console.log("Sending private file list...");
+        console.log(newMsg);
+        chatEasyrtcService.sendDataWS(newMsg.to, newMsg.msgType, newMsg);
       }
 
-      // **** DOWNLOAD LIST FUNCTIONS
 
-      // Send the public file list to somebody that requests
-      $scope.sendPublicFileList = function (easyrtcid){
+      // This check if you are asking for download the public or the private list and call the needed function
+      $scope.downloadPetiton = function (easyrtcidOfSelected , destiny){
+        console.log("easyrtcidOfSelected " , easyrtcidOfSelected , "destiny " , destiny);
+        // if is the public list of the selected
+        if (easyrtcidOfSelected == destiny) {
+            $scope.publicFileListDownloadPetition (easyrtcidOfSelected);
+        }
+        // If is the private list of selected
+        else if (destiny == $scope.myId) {
 
-        console.log
-          ("$scope.getListFromListOfList (easyrtcid , $scope.filesToSend)" , fileListsServerService.getListFromListOfList ($scope.myId , $scope.filesToSend) );
-
-        $scope.conectionToPeer(easyrtcid)
-        $scope.send (easyrtcid, fileListsServerService.getListFromListOfList ($scope.myId , $scope.filesToSend) )
+        }
       }
 
       // Send a petition for download the public list of somebody
-      $scope.publicFileListDownloadPetition = function (easyrtcid){
+      $scope.privateFileListDownloadPetition = function (easyrtcid){
+        var newMsg  = chatEasyrtcService.newMessage (
+          "privateFileListDownloadPetition",
+          $scope.myId,
+          easyrtcid,
+          new Date(),
+          null
+        )
 
-        var msg = {};
+        chatEasyrtcService.sendDataWS(newMsg.to, newMsg.msgType, newMsg);
+      }
+      // Send a petition for download the public list of somebody
+      $scope.publicFileListDownloadPetition = function (easyrtcid){
         var newMsg  = chatEasyrtcService.newMessage (
           "publicFileListDownloadPetition",
           $scope.myId,
@@ -416,11 +421,70 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
             case "publicFileListDownloadPetition":
               $scope.sendPublicFileList(msg.from);
               break;
+            case "privateFileListDownloadPetition":
+              $scope.sendPublicFileList(msg.from);
+              break;
+            case "privateListOffer":
+              $scope.privateListOffer(msg.from, msg.content);
+              break;
             default:
               console.log("Special Chat command no recognized: not recognized");
           }
         }
       )
+
+
+      // *****************************
+
+      // **** Accept checker file list download
+      $scope.acceptChecker = function(otherGuy, fileNameList, responsefn) {
+          var params = {
+            title : "Download Files",
+            textContent : null,
+            ariaLabel : "Download Files",
+            ok : "Download",
+            cancel : "Reject"
+          };
+          if( $scope.easyrtc.getConnectionCount() > 0 ) {
+            params.textContent = "Cancel file transfer list from " + $scope.easyrtc.idToName(otherGuy) + " ?";
+          }
+          else {
+            params.textContent = "Accept download file list from " + $scope.easyrtc.idToName(otherGuy) + " ?";
+          }
+          console.log("incoming call", params.textContent);
+          for (x = 0 ; x < fileNameList.length ; x++) {
+
+          }
+
+          $scope.acceptTheCall = function(wasAccepted) {
+           //  document.getElementById("acceptCallBox").style.display = "none";
+            if( wasAccepted && $scope.easyrtc.getConnectionCount() > 0 ) {
+              $scope.easyrtc.hangupAll();
+            }
+            responsefn(wasAccepted);
+          };
+
+         //Show dialog
+         $scope.showConfirm = function(data) {
+           // Appending dialog to document.body to cover sidenav in docs app
+           var confirm = $mdDialog.confirm()
+                 .title(data.title)
+                 .textContent(data.textContent)
+                 .ariaLabel(data.ariaLabel)
+                 .ok(data.ok)
+                 .cancel(data.cancel);
+           $mdDialog.show(confirm).then(function() {
+             $scope.status = 'File accepted.';
+             $scope.acceptTheCall (true);
+           }, function() {
+             $scope.acceptTheCall (false);
+             $scope.status = 'File rejected.';
+             alert ($scope.status);
+           });
+
+         };
+         $scope.showConfirm(params);
+       };
 
 
 

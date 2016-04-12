@@ -125,22 +125,27 @@
               <!-- <div  class="button-control" style="background-color:#3949ab;color:white;" ng-click="selected('null')">
                 <i class="fa fa-cloud-download"></i>
               </div>{{selectedDestiny}} -->
+
               <md-tabs md-border-bottom md-autoselect md-dynamic-height md-selected="selectedIndex" >
                 <md-tab ng-repeat="list in ownFileList"
-                  label="{{list.destiny == myId ? 'PUBLIC' : list.destiny}}"
                    md-on-select="selected(list)"
                    ng-init="selectedDestiny=list.destiny">
+                   <md-tab-label>
+                    {{list.destiny == myId ? 'PUBLIC' : list.destiny}}
+                    <i class="fa fa-times-circle" ng-click="removeTab( list )" aria-hidden="true"></i>
+                  </md-tab-label>
+                  <md-tab-body>
+                    <!-- <md-button class="md-primary md-raised" ng-click="removeTab( list )">Remove Tab</md-button> -->
 
-                  <md-button class="md-primary md-raised" ng-click="removeTab( list )">Remove Tab</md-button>
-
-                  <div ng-repeat="file in list.files"  class="file-list-element" class="file-list-element" flex>
-                      <i class="fa {{file.type | fileIcon }} fa-lg"></i>
-                      {{file.name}} -
-                      <strong>{{file.size | bytes}}</strong>
-                      <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}% <span class="md-caption">to {{actualUserReceiver}}</span></span>
-                      <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
-                      <md-divider ></md-divider>
-                  </div>
+                    <div ng-repeat="file in list.files" class="file-list-element" flex>
+                        <i class="fa {{file.type | fileIcon }} fa-lg"></i>
+                        {{file.name}} -
+                        <strong>{{file.size | bytes}}</strong>
+                        <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}% <span class="md-caption">to {{actualUserReceiver}}</span></span>
+                        <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
+                        <md-divider ></md-divider>
+                    </div>
+                  </md-tab-body>
                 </md-tab>
               </md-tabs>
 
@@ -155,23 +160,58 @@
           <md-content layout="row"  flex="50" >
             <md-content flex="50" layout="column"   class="border-radius" md-whiteframe="5">
               <!-- BOTTOM FILE LIST -->
-              <md-toolbar layout="row" class="md-theme-indigo" >
+              <!-- <md-toolbar layout="row" class="md-theme-indigo" >
                     <div class="md-toolbar-tools">
                       <span>
                         {{easyrtcidOfSelected ? "Files from "+easyrtcidOfSelected : "Select users for see their files"}}
-                        <!-- Files of {{easyrtcidOfSelected}}: -->
                       </span>
                     </div>
-              </md-toolbar>
+              </md-toolbar> -->
 
-              <div ng-repeat="file in selectedFileList.files"  class="file-list-element" class="file-list-element" ng-model="file.bar.name" flex>
+              <md-tabs md-border-bottom md-autoselect md-dynamic-height md-selected="selectedIndextwo" >
+                <md-tab ng-repeat="list in tabs.fileLists"
+                   >
+                   <md-tab-label>
+                    {{list.destiny == myId ? 'PRIVATE' : 'PUBLIC'}}
+                    <i class="fa fa-times-circle" ng-click="removeTabExternals ( list )" aria-hidden="true"></i>
+                  </md-tab-label>
+                  <md-tab-body>
+
+                    <md-content flex layout="row" layout-align="center center">
+                      <div class="button-control"style="background-color:#009688;color:white;" ng-click="fileListPetition(easyrtcidOfSelected)">
+                        <md-tooltip md-direction="left">
+                          Refresh list
+                        </md-tooltip>
+                        <i class="fa fa-refresh"></i>
+                      </div>
+                      <div  class="button-control" style="background-color:#3949ab;color:white;" ng-click="downloadPetiton(easyrtcidOfSelected , list.destiny )">
+                        <md-tooltip md-direction="top">
+                          Download all
+                        </md-tooltip>
+                        <i class="fa fa-cloud-download"></i>
+                      </div>
+                    </md-content>
+
+                    <div ng-repeat="file in list.files" class="file-list-element" flex>
+                      <i class="fa {{file.type | fileIcon }} fa-lg"></i>
+                      {{file.name}} -
+                      <strong>{{file.size | bytes}}</strong>
+                      <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}%</span>
+                      <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
+                      <md-divider ></md-divider>
+                    </div>
+                  </md-tab-body>
+                </md-tab>
+              </md-tabs>
+
+              <!-- <div ng-repeat="file in selectedFileList.files"  class="file-list-element" class="file-list-element" ng-model="file.bar.name" flex>
                 <i class="fa {{file.type | fileIcon }} fa-lg"></i>
                 {{file.name}} -
                 <strong>{{file.size | bytes}}</strong>
                 <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}%</span>
                 <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
                 <md-divider ></md-divider>
-              </div>
+              </div>-->
             </md-content>
 
             <!-- MENU DOWNLOAD OR UPDATE -->
@@ -185,7 +225,7 @@
                       </md-tooltip>
                       <i class="fa fa-refresh"></i>
                     </div>
-                    <div  class="button-control" style="background-color:#3949ab;color:white;" ng-click="publicFileListDownloadPetition(easyrtcidOfSelected)">
+                    <div  class="button-control" style="background-color:#3949ab;color:white;" ng-click="downloadPetiton(easyrtcidOfSelected)">
                       <md-tooltip md-direction="top">
                         Download all
                       </md-tooltip>
@@ -203,7 +243,7 @@
                <!-- PRIVATE DRAG&DROP-->
               <md-content flex="75" layout="column"   class="border-radius"   layout-align="start start">
 
-                <span class="md-caption">Send files privately: </span>
+                <span class="md-caption">Send files privately to: {{easyrtcidOfSelected}} </span>
                 <md-content id="{{dropAreaName}}{{easyrtcidOfSelected}}"  class="dragndrop connected drag-n-drop-zone border-radius-high" layout-align="center center" ng-model="privateDragNDrop" layout="column" >
 
                     <button  id="fileInputPrivate"  ngf-select="uploadFiles($files , easyrtcidOfSelected )" multiple class="ng-hide">Select Files</button>
