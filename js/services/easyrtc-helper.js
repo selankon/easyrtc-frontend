@@ -176,7 +176,7 @@ easyrtcHelper.factory('callEasyrtcService', [
     }
 
     var getConnectStatus = function (easyrtcid) {
-      console.log("CONECTION STATUS !!!! " , easyrtc.getConnectStatus(easyrtcid) , easyrtcid);
+      // console.log("CONECTION STATUS !!!! " , easyrtc.getConnectStatus(easyrtcid) , easyrtcid);
       return easyrtc.getConnectStatus(easyrtcid) ;
     }
 

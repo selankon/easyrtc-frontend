@@ -5,7 +5,7 @@ fileTransferHelper.factory('fileListsServerService', [
     var getBlankFileList = function () {
       return {
         creationDate : null ,
-        destiny : null ,
+        destiny : false ,
         files : []
       };
     }
@@ -23,8 +23,11 @@ fileTransferHelper.factory('fileListsServerService', [
         lastModifiedDate : file.lastModifiedDate,
         size : file.size,
         type : file.type,
-        bar : {name : 'bar-'+file.name,
-                progress : false} //Used for calculate the download percentage
+        bar : { //Progress Bar
+                name : 'bar-'+file.name,
+                progress : false,
+                destinatary : null
+              }
       }
     }
 
@@ -40,6 +43,7 @@ fileTransferHelper.factory('fileListsServerService', [
         }
         return false;
       }
+
       return false;
     }
 
@@ -56,6 +60,7 @@ fileTransferHelper.factory('fileListsServerService', [
 
     // Remove a list of files
     var removeList =  function (destiny, listOfLists) {
+      // console.log("REMOVING... " , listOfLists);
       for (x = 0 ; x < listOfLists.length ; x++ ) {
         if (listOfLists[x].destiny == destiny) {
           listOfLists.splice(x,1);
@@ -131,6 +136,9 @@ fileTransferHelper.factory('fileListsServerService', [
       removeList : function (destiny, listOfLists) {
         return removeList (destiny, listOfLists);
       },
+      getBlankFileList : function () {
+        return getBlankFileList ();
+      },
 
 
     }
@@ -187,10 +195,13 @@ fileTransferHelper.factory('fileListsClientService', [
     }
 
     // Remove a list of files
-    var removeList =  function (destiny, fileLists) {
-      for (x = 0 ; x < fileLists.length ; x++ ) {
-        if (fileLists[x].destiny == destiny) {
-          fileLists.splice(x,1);
+    var removeList =  function (destiny, list) {
+      console.log("dsadghstrfdhiognñerios... to ", destiny , list);
+
+      for (x = 0 ; x < list.fileLists.length ; x++ ) {
+        if (list.fileLists[x].destiny == destiny) {
+          console.log("INSIDE!");
+          list.fileLists.splice(x,1);
           return true;
         }
       }
@@ -240,7 +251,7 @@ fileTransferHelper.factory('fileListsClientService', [
 
       // If not exist the lists of this user directly create it the lists
       if ( !(existList(from, externalFileLists)) ) {
-        console.log("pushing list to externalFileLists...... ");
+        // console.log("pushing list to externalFileLists...... ");
         var temp = {id : from , fileLists : []};
         temp.fileLists.push(list)
         externalFileLists.push (temp);

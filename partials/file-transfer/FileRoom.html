@@ -78,7 +78,7 @@
         <!-- CENTER -->
         <md-content layout="column"  flex="70">
           <md-content layout="row"   flex>
-            {{browseButton}}
+            
             <!-- SELF DRAG AND DROP -->
             <md-content flex="50" layout="column"   class="border-radius"   layout-align="center center" layout-margin>
 
@@ -138,12 +138,28 @@
                     <!-- <md-button class="md-primary md-raised" ng-click="removeTab( list )">Remove Tab</md-button> -->
 
                     <div ng-repeat="file in list.files" class="file-list-element" flex>
+                      <div ng-hide="file.bar.progress">
                         <i class="fa {{file.type | fileIcon }} fa-lg"></i>
                         {{file.name}} -
                         <strong>{{file.size | bytes}}</strong>
-                        <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}% <span class="md-caption">to {{actualUserReceiver}}</span></span>
-                        <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
-                        <md-divider ></md-divider>
+                      </div>
+
+                        <!-- <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}% <span class="md-caption">to {{file.bar.destinatary}}</span></span>
+                        <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear> -->
+
+                      <md-content flex layout="row" layout-align="start center" ng-show="file.bar.progress" >
+                        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                        <md-content flex layout="column" layout-align="center start" >
+                          <span class="md-caption" >
+                            Sending <strong>{{file.name}}</strong> {{file.bar.progress | number:1 }}%
+                            of  {{file.size | bytes}} to {{file.bar.destinatary}}
+                          </span>
+                          <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.id}}' ng-model="file.bar.id"  flex></md-progress-linear>
+                        </md-content>
+                      </md-content>
+
+                      <md-divider ></md-divider>
+
                     </div>
                   </md-tab-body>
                 </md-tab>
@@ -184,7 +200,7 @@
                         </md-tooltip>
                         <i class="fa fa-refresh"></i>
                       </div>
-                      <div  class="button-control" style="background-color:#3949ab;color:white;" ng-click="downloadPetiton(easyrtcidOfSelected , list.destiny )">
+                      <div  class="button-control" style="background-color:#3949ab;color:white;" ng-click="downloadPetiton(easyrtcidOfSelected , list )">
                         <md-tooltip md-direction="top">
                           Download all
                         </md-tooltip>
@@ -192,14 +208,43 @@
                       </div>
                     </md-content>
 
-                    <div ng-repeat="file in list.files" class="file-list-element" flex>
+                    <!-- <div ng-repeat="file in list.files" class="file-list-element" flex>
                       <i class="fa {{file.type | fileIcon }} fa-lg"></i>
                       {{file.name}} -
-                      <strong>{{file.size | bytes}}</strong>
+                      <strong>{{file.size | bytes}}</strong> {{file.bar.progress}}
                       <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}%</span>
                       <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear>
                       <md-divider ></md-divider>
+                    </div> -->
+
+                    <div ng-repeat="file in list.files" class="file-list-element" flex>
+                      <div ng-hide="file.bar.progress">
+                        <i class="fa {{file.type | fileIcon }} fa-lg"></i>
+                        {{file.name}} -
+                        <strong>{{file.size | bytes}}</strong>
+                      </div>
+
+                        <!-- <span ng-show="file.bar.progress" > - {{file.bar.progress | number:1 }}% <span class="md-caption">to {{file.bar.destinatary}}</span></span>
+                        <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.name}}' ng-model="file.bar.name" ng-show="file.bar.progress" ></md-progress-linear> -->
+
+                      <md-content flex layout="row" layout-align="start center" ng-show="file.bar.progress" >
+                        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                        <md-content flex layout="column" layout-align="center start" >
+                          <span class="md-caption" >
+                            Sending <strong>{{file.name}}</strong> {{file.bar.progress | number:1 }}%
+                            of  {{file.size | bytes}} to {{file.bar.destinatary}}
+                          </span>
+                          <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.id}}' ng-model="file.bar.id"  flex></md-progress-linear>
+                        </md-content>
+                      </md-content>
+
+                      <md-divider ></md-divider>
+
                     </div>
+
+
+
+
                   </md-tab-body>
                 </md-tab>
               </md-tabs>
@@ -214,11 +259,12 @@
               </div>-->
             </md-content>
 
-            <!-- MENU DOWNLOAD OR UPDATE -->
-            <md-content flex="50" layout="column" ng-show="easyrtcidOfSelected" >
+            <!-- OLD(MENU DOWNLOAD OR UPDATE) -->
+            <!-- Progress bar and message status space -->
+            <md-content flex="50" layout="column" >
               <md-content flex="25" layout="row" layout-align="center center">
-                <md-content flex layout="column" layout-align="center center">
-                  <md-content flex layout="row" layout-align="center center">
+                <md-content flex layout="column" >
+                  <!-- <md-content flex layout="row" layout-align="center center">
                     <div class="button-control"style="background-color:#009688;color:white;" ng-click="fileListPetition(easyrtcidOfSelected)">
                       <md-tooltip md-direction="left">
                         Refresh list
@@ -231,17 +277,31 @@
                       </md-tooltip>
                       <i class="fa fa-cloud-download"></i>
                     </div>
+                  </md-content> -->
+                  <md-content flex layout="row" layout-align="start start">
+                    <span class="md-caption">{{transactionMsg}} </span>
                   </md-content>
-                  <md-content flex layout="row" layout-align="center center">
-                    <span class="md-caption">{{transactionMsg}}</span>
+
+                  <md-content flex layout="row" layout-align="start center" ng-repeat="bar in progressBarList">
+                    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                    <md-content flex layout="column" layout-align="center start" >
+                      <span ng-show="bar.progress" class="md-caption" >
+                        Sending <strong>{{bar.id}}</strong> {{bar.progress | number:1 }}%
+                        of  {{bar.size | bytes}}
+                        <!-- to {{bar.meta.to}} -->
+                      </span>
+                      <md-progress-linear md-mode="determinate" value="{{bar.progress}}"  id='{{bar.id}}' ng-model="bar.id" ng-show="bar.progress" flex></md-progress-linear>
+                      <md-divider ></md-divider>
+                    </md-content>
                   </md-content>
+
                   <!-- {{easyrtcidOfSelected}} -->
 
                 </md-content>
               </md-content>
 
                <!-- PRIVATE DRAG&DROP-->
-              <md-content flex="75" layout="column"   class="border-radius"   layout-align="start start">
+              <md-content flex="75" layout="column"   class="border-radius"   layout-align="start start" ng-show="easyrtcidOfSelected">
 
                 <span class="md-caption">Send files privately to: {{easyrtcidOfSelected}} </span>
                 <md-content id="{{dropAreaName}}{{easyrtcidOfSelected}}"  class="dragndrop connected drag-n-drop-zone border-radius-high" layout-align="center center" ng-model="privateDragNDrop" layout="column" >

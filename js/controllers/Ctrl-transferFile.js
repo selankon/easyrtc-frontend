@@ -1,7 +1,8 @@
 var fileTransferCntrl = angular.module('fileTransferCntrl', []);
 
 fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'Upload', '$timeout', 'startupEasyrtcService', 'callEasyrtcService', 'ftEasyrtcService', 'chatEasyrtcService', 'fileListsServerService', 'fileListsClientService',
-    function($scope, $stateParams, $state, $mdDialog, Upload, $timeout, startupEasyrtcService, callEasyrtcService, ftEasyrtcService, chatEasyrtcService, fileListsServerService, fileListsClientService) {
+// 'progressbarGestion',
+    function($scope, $stateParams, $state, $mdDialog, Upload, $timeout, startupEasyrtcService, callEasyrtcService, ftEasyrtcService, chatEasyrtcService, fileListsServerService, fileListsClientService, progressbarGestion) {
       $scope.setMyId = function (value){
         $scope.myId = value;
       }
@@ -72,8 +73,8 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       // **** Accept or reject a file from other
       function acceptRejectCB(otherGuy, fileNameList, wasAccepted) {
         // List the files being offered
-        console.log("Files offered: " , fileNameList , " from " , otherGuy);
-        $scope.acceptChecker (otherGuy, fileNameList, wasAccepted);
+        // console.log("Files offered: " , fileNameList , " from " , otherGuy);
+        $scope.acceptChecker (otherGuy, fileNameList, wasAccepted );
         // wasAccepted(true);
       }
 
@@ -88,102 +89,29 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       }
 
       // **** Get file from a list
-      $scope.getFileFromList = function (name , list ){
-        for (x = 0 ; x < list.files.length ; x++){
-          if (name == list.files[x].name) {
-            return list.files[x];
-          }
-        }
-      }
+      // $scope.getFileFromList = function (name , list ){
+      //   for (x = 0 ; x < list.files.length ; x++){
+      //     if (name == list.files[x].name) {
+      //       return list.files[x];
+      //     }
+      //   }
+      // }
 
       // Get the bar object from a file objecy
-      $scope.getBarFromFile = function (file){
-        return file.bar;
-      }
+      // $scope.getBarFromFile = function (file){
+      //   return file.bar;
+      // }
 
       // Get from a list the model of the file that we want to update the download attribute
-      var updateProgressBar = function (received, size) {
-        $scope.$apply(function() { $scope.actualBar.progress =  (received/size)*100 ; });
-        console.log($scope.actualBar.progress , "  Actual bar progress ");
-      }
+      // var updateProgressBar = function (received, size) {
+      //   $scope.$apply(function() { $scope.actualBar.progress =  (received/size)*100 ; });
+      //   console.log($scope.actualBar.progress , "  Actual bar progress ");
+      // }
 
-      // **** The receive messages from the status of transmission
-      $scope.actualBar; // Actual progress bar to be updated
-      $scope.actualUserReceiver; // Actual user who is receiving your data
-      var receiveStatusCB = function (otherGuy, msg) {
-        // console.log("MSG!!!", msg);
-        switch (msg.status) {
-            case "started":
-                console.log("Started transfer ");
-                $scope.$apply(function() { $scope.transactionStatus ("Started transfer") });
-                break;
-            case "eof":
-                console.log("Finished file from " , otherGuy);
-                $scope.$apply(function() { $scope.transactionStatus ("Finished file from " + otherGuy) });
-                break;
-            case "done":
-                console.log( "Stopped because ", msg.reason, " from" , otherGuy);
-                $scope.$apply(function() { $scope.transactionStatus ("Stopped because " +  msg.reason + " from " + otherGuy) });
-                break;
-            case "started_file":
-                console.log("Beginning receive of " , msg.name);
-                $scope.$apply(
-                  function() {
-                    $scope.actualBar = $scope.getBarFromFile ($scope.getFileFromList (msg.name , $scope.selectedFileList) );
-                    $scope.actualBar.progress = 0;
-                    $scope.transactionStatus ("Beginning receive of " + msg.name)
-                  });
-                break;
-            case "progress":
-                updateProgressBar ( msg.received, msg.size, $scope.selectedFileList);
-                break;
-            default:
-                $scope.$apply(function() { $scope.transactionStatus ("strange file receive cb message = "+ JSON.stringify(msg)) });
-                console.log("strange file receive cb message = ", JSON.stringify(msg));
-        }
-        return true;
-      }
+      // $scope.actualBar; // Actual progress bar to be updated
+      // $scope.actualUserReceiver; // Actual user who is receiving your data
 
-      // **** The messages when you are sending to somebody
-      function callbackStatusSend(state) {
-        //SENDING TO PEOPLE
-        $scope.transferInProgress = true;
-        switch (state.status) {
-            case "waiting":
-                console.log("waiting for other party to accept transmission");
-                break;
-            case "started_file":
-                // put the previous progress bar at 100 % due an error
-                if ( !(angular.isUndefined($scope.actualBar) || $scope.actualBar === null)  ) {
-                  updateProgressBar ( 1, 1, fileListsServerService.getListFromListOfList ( $scope.selectedDestiny ,$scope.ownFileList) );
-
-                }
-                console.log("started file: " + state.name);
-                $scope.$apply(
-                  function() {
-                    $scope.actualBar =
-                      $scope.getBarFromFile (
-                        $scope.getFileFromList (state.name ,  fileListsServerService.getListFromListOfList ( $scope.selectedDestiny ,$scope.ownFileList))
-                      );
-                    $scope.actualBar.progress = 0;
-                  });
-            case "working":
-                updateProgressBar ( state.position, state.size,  fileListsServerService.getListFromListOfList ( $scope.selectedDestiny ,$scope.ownFileList));
-                console.log(state.name + ":" + state.position + "/" + state.size + "(" + state.numFiles + " files)");
-                break;
-            case "rejected":
-                console.log("cancelled");
-                break;
-            case "done":
-                updateProgressBar ( 1, 1, fileListsServerService.getListFromListOfList ( $scope.selectedDestiny ,$scope.ownFileList));
-                console.log("done");
-
-                break;
-        }
-        return true;
-      }
-
-
+      // $scope.progressBarList = progressbarGestion.getBarList ();
 
       $scope.selectedDestiny  = function (list) {
           if ( !(angular.isUndefined(tab) || tab === null)  ) {
@@ -230,12 +158,170 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
             $scope.$apply(function() {$scope.filesAdded (files, easyrtcid);});
         }
 
-        console.log("Creating dragAnDrop id : " , easyrtcid);
+        // console.log("Creating dragAnDrop id : " , easyrtcid);
         ftEasyrtcService.buildDragNDropRegion($scope.dropAreaName+easyrtcid, $scope.filesHandler);
       }
 
+      // Get the bar object from a file objecy
+      $scope.getBarFromFile = function (file){
+        return file.bar;
+      }
+
+      // Get from a list the model of the file that we want to update the download attribute
+      var updateProgressBar = function (received, size, bar) {
+        bar.progress =  (received/size)*100 ;
+        console.log(bar.progress , "  Actual bar progress ");
+      }
+
+      // **** Get file from a list
+      $scope.getFileFromList = function (name , list ){
+        for (x = 0 ; x < list.files.length ; x++){
+          if (name == list.files[x].name) {
+            return list.files[x];
+          }
+        }
+      }
+
+      // **** The receive messages from the status of transmission
+      var downloadBar;
+      var receiveStatusCB = function (otherGuy, msg) {
+        // $scope.transferInProgress = true;
+
+        console.log("receiveStatusCB --> " , otherGuy , msg);
+
+        switch (msg.status) {
+            case "started":
+                console.log("Started transfer ");
+                break;
+            case "eof":
+                console.log("Finished file from " , otherGuy);
+                $scope.$apply(function() { $scope.transactionStatus ("Finished file from " + otherGuy) });
+                break;
+            case "done":
+                console.log( "Stopped because ", msg.reason, " from" , otherGuy);
+                $scope.$apply(function() {
+                  $scope.transactionStatus ("Stopped because " +  msg.reason + " from " + otherGuy)
+                  $scope.downloadAccepted = false;
+                  downloadBar.progress = false;
+                });
+
+                break;
+            case "started_file":
+                console.log("Beginning receive of " , msg.name);
+                $scope.$apply(
+                  function() {
+                    // actualBar = $scope.getBarFromFile ($scope.getFileFromList (msg.name , $scope.selectedFileList) );
+                    // $scope.actualBar.progress = 0;
+                    $scope.transactionStatus ("Started transfer");
+                    temp = $scope.getBarFromFile ($scope.getFileFromList (msg.name , $scope.temporalDownloadPetition));
+
+                    if ( !(angular.isUndefined(downloadBar) || downloadBar === null) ) {
+                      downloadBar.progress = false ;
+                      downloadBar = temp;
+                    } else {
+                      downloadBar = temp;
+                    }
+
+                    downloadBar.destinatary = otherGuy;
+                  });
+                break;
+            case "progress":
+                // updateProgressBar ( msg.received, msg.size, $scope.selectedFileList);
+                $scope.$apply(
+                  function() {
+                    updateProgressBar ( msg.received, msg.size,  downloadBar);
+
+                  });
+
+                break;
+            default:
+                $scope.$apply(function() { $scope.transactionStatus ("strange file receive cb message = "+ JSON.stringify(msg)) });
+                console.log("strange file receive cb message = ", JSON.stringify(msg));
+        }
+        return true;
+      }
+
       // Create the filesender and send the files
-      $scope.send = function (easyrtcid, list) {
+      // easyrtcid = destinatary , list = the filelist object, ownlist = ownFileList with other metadata such progessbar
+      $scope.send = function (easyrtcid, list, ownlist) {
+        // **** The messages when you are sending to somebody
+
+        // var actualTransfer;
+        var actualBar;
+        function callbackStatusSend(state) {
+
+          // console.log("callbackStatusSend --> " , state, $scope.progressBarList, easyrtcid , list);
+
+          //SENDING TO PEOPLE
+          switch (state.status) {
+              case "waiting":
+                  console.log("waiting for other party to accept transmission");
+                  break;
+              case "started_file":
+                  // put the previous progress bar at 100 % due an error
+
+                  // if ( !(angular.isUndefined($scope.actualBar) || $scope.actualBar === null)  ) {
+                  //   updateProgressBar ( 1, 1, fileListsServerService.getListFromListOfList ( $scope.selectedDestiny ,$scope.ownFileList) );
+                  //
+                  // }
+
+                  // progressbarGestion.createBar (
+                  //   state.name,
+                  //   $scope.progressBarList
+                  //  );
+
+                  console.log("started file: " + state.name);
+                  // actualTransfer = state.name;
+                  $scope.$apply(
+                    function() {
+                      temp = $scope.getBarFromFile ($scope.getFileFromList (state.name , ownlist));
+                      if ( !(angular.isUndefined(actualBar) || actualBar === null) ) {
+                        actualBar.progress = false ;
+                        actualBar = temp;
+                      } else {
+                        actualBar = temp;
+                      }
+
+
+                      actualBar.destinatary = easyrtcid;
+                      updateProgressBar ( 0, 1,  actualBar);
+                    });
+              case "working":
+
+                  console.log(state.name + ":" + state.position + "/" + state.size + "(" + state.numFiles + " files)");
+
+                  $scope.$apply( function() {
+                    // var bar = progressbarGestion.getSingleBar(state.name,
+                    // $scope.progressBarList);
+                    // progressbarGestion.updateBar ( state.position, state.size, bar,  $scope.progressBarList);
+                    // bar.size = state.size;
+
+                    // var getFile = $scope.getFileFromList (state.name , ownlist)
+
+                    // var bar = $scope.getBarFromFile ($scope.getFileFromList (state.name , ownlist));
+                    console.log("actual bar" , actualBar);
+                    updateProgressBar ( state.position, state.size,  actualBar);
+
+
+                  });
+
+                  break;
+              case "rejected":
+                  console.log("cancelled");
+                  break;
+              case "done":
+                  $scope.$apply( function() {
+                    // var bar = $scope.getBarFromFile ($scope.getFileFromList (actualTransfer , ownlist));
+                    updateProgressBar ( 1, 1,  actualBar);
+                    actualBar.progress = false
+                  });
+                  console.log("done");
+                  break;
+          }
+          return true;
+        }
+
+
         var fileSender = null;
         if (callEasyrtcService.getConnectStatus(easyrtcid) === $scope.easyrtc.NOT_CONNECTED && $scope.noDCs[easyrtcid] === undefined) {
             // calls between firefrox and chrome ( version 30) have problems one way if you
@@ -249,7 +335,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
             }
             console.log("GoingToSend next list: " , list);
 
-            $scope.actualUserReceiver = easyrtcid
+            // $scope.actualUserReceiver = easyrtcid
             fileSender(list.files , true /* assume binary */);
         }
         else {
@@ -284,7 +370,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
       // When you recive a private file list
       $scope.privateListOffer = function (from , content){
-        console.log("PRIVATE LIST OFER :@@@@@" , from, content);
+        // console.log("PRIVATE LIST OFER :@@@@@" , from, content);
         $mdDialog.show(
          $mdDialog.alert()
           //  .parent(angular.element(document.querySelector('#popupContainer')))
@@ -320,33 +406,62 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
         fileListsServerService.removeList ( list.destiny , $scope.ownFileList);
       }
       $scope.removeTabExternals = function ( list ) {
-        // fileListsClientService.removeList ( list.destiny , $scope.externalfileLists);
-        putavida ++ ;
+        console.log("AAAAAAAAA ", list);
+        fileListsClientService.removeList ( list.destiny , fileListsClientService.getAllListOfUser ($scope.easyrtcidOfSelected , $scope.externalfileLists));
+        // fileListsClientService.removeList ( list.destiny , $scope.tabs);
+        // putavida ++ ;
       }
 
       // **** DOWNLOAD LIST FUNCTIONS
 
       // Send the public file list to somebody that requests
-      $scope.sendPublicFileList = function (to){
+      $scope.sendPublicFiles = function (to){
         $scope.conectionToPeer(to)
-        $scope.send (to, fileListsServerService.getListFromListOfList ($scope.myId , $scope.filesToSend) )
-        $scope.ownFileList =  fileListsServerService.getListFromListOfList ($scope.myId , $scope.filesToSend) ;
+        $scope.send (
+          to,
+          fileListsServerService.getListFromListOfList ($scope.myId , $scope.filesToSend),
+          fileListsServerService.getListFromListOfList ($scope.myId , $scope.ownFileList) //Used for the progressbar
+         )
+        // $scope.ownFileList =  fileListsServerService.getListFromListOfList ($scope.myId , $scope.filesToSend) ;
+      }
+
+      // Send the private list shared with a user if exist
+      $scope.sendPrivateFiles = function (to){
+        if (fileListsServerService.getListFromListOfList (to , $scope.ownFileList) ) {
+          $scope.conectionToPeer(to)
+          $scope.send (
+            to,
+            fileListsServerService.getListFromListOfList (to , $scope.filesToSend),
+            fileListsServerService.getListFromListOfList (to , $scope.ownFileList) //Used for the progressbar
+           )
+        }
+
+
       }
 
       // Send the own file list to other (ALWAYS PUBLIC LIST!! list where destiny easyrtcid == $scope.myId )
       $scope.sendFileList  = function ( easyrtcid ) {
+        var templist = fileListsServerService.getListFromListOfList($scope.myId, $scope.ownFileList);
+        //If list doesn't exists send a blank public list
+        if (templist === false) {
+          templist = fileListsServerService.getBlankFileList();
+          templist.destiny = $scope.myId;
+        }
+
         var newMsg  = chatEasyrtcService.newMessage (
           "fileListDeliver",
           $scope.myId,
           easyrtcid,
           new Date(),
-          fileListsServerService.getListFromListOfList($scope.myId, $scope.ownFileList),
+          templist,
           null
         )
 
         chatEasyrtcService.sendDataWS(newMsg.to, newMsg.msgType, newMsg);
 
       }
+
+
 
       // Send a private file list offer to a user, getting the list asociated to his easyrtcid
       $scope.sendPrivateFileList = function (easyrtcid){
@@ -365,15 +480,16 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
 
 
       // This check if you are asking for download the public or the private list and call the needed function
-      $scope.downloadPetiton = function (easyrtcidOfSelected , destiny){
-        console.log("easyrtcidOfSelected " , easyrtcidOfSelected , "destiny " , destiny);
+      $scope.downloadPetiton = function (easyrtcidOfSelected , list){
+        // console.log("easyrtcidOfSelected " , easyrtcidOfSelected , "destiny " , destiny);
         // if is the public list of the selected
-        if (easyrtcidOfSelected == destiny) {
+        $scope.temporalDownloadPetition = list; //This var is used for know what list will be downloaded
+        if (easyrtcidOfSelected == list.destiny) {
             $scope.publicFileListDownloadPetition (easyrtcidOfSelected);
         }
         // If is the private list of selected
-        else if (destiny == $scope.myId) {
-
+        else if (list.destiny == $scope.myId) {
+            $scope.privateFileListDownloadPetition (easyrtcidOfSelected);
         }
       }
 
@@ -419,10 +535,10 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
               $scope.fileListReceived(msg.from, msg.content);
               break;
             case "publicFileListDownloadPetition":
-              $scope.sendPublicFileList(msg.from);
+              $scope.sendPublicFiles(msg.from);
               break;
             case "privateFileListDownloadPetition":
-              $scope.sendPublicFileList(msg.from);
+              $scope.sendPrivateFiles(msg.from);
               break;
             case "privateListOffer":
               $scope.privateListOffer(msg.from, msg.content);
@@ -451,7 +567,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
           else {
             params.textContent = "Accept download file list from " + $scope.easyrtc.idToName(otherGuy) + " ?";
           }
-          console.log("incoming call", params.textContent);
+          // console.log("incoming call", params.textContent);
           for (x = 0 ; x < fileNameList.length ; x++) {
 
           }
@@ -462,6 +578,7 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
               $scope.easyrtc.hangupAll();
             }
             responsefn(wasAccepted);
+            $scope.downloadAccepted = wasAccepted; // Variable to know if the download was accepted
           };
 
          //Show dialog
