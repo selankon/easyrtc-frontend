@@ -7,11 +7,7 @@ easyrtcHelper.factory('chatEasyrtcService', [
     var callback ;
     var specialChatMessageReceived = null; //This is a callback used for store special messages from chat. In this way, the users could send messages between theys specifing differents orders
 
-    // Chat sound msg received
-    var playSound = function (path){
-      var audio = new Audio(path);
-      audio.play();
-    }
+    
 
     // Set the callback for specials messages
     var setSpecialChatMessageReceived = function (callback){

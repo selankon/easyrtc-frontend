@@ -9,11 +9,13 @@ var config_module = angular.module('easyRtcApp.config', [])
   "index" : "choice",
   "createRoom" : "create",
   "audioVideo" : "AV",
-  
+
   "createFileRoom" : "fileTransfer",
   "fileTransfer" : "ft"
 })
 
 .constant("sounds", {
-  "chatMessageAlert" : "audio/messageReceived.mp3"
+  "chatMessageAlert" : "audio/messageReceived.mp3",
+  "incomingCall" : "audio/tokyo_drift.mp3",
+  "outgoingCall" : "audio/outgoing.mp3",
 })

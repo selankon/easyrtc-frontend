@@ -45,7 +45,7 @@
             <md-divider inset></md-divider>
 
             <!-- Show users list -->
-            <div hide-md show-gt-md>
+            <div >
               <div ng-repeat="user in UserList" layout-align="center center"
               ng-class="user.easyrtcid == easyrtcidOfSelected ? 'list-selection' : 'list-selection-unselected' ">
               <div layout="row" layout-align="center start">
@@ -78,7 +78,7 @@
         <!-- CENTER -->
         <md-content layout="column"  flex="70">
           <md-content layout="row"   flex>
-            
+
             <!-- SELF DRAG AND DROP -->
             <md-content flex="50" layout="column"   class="border-radius"   layout-align="center center" layout-margin>
 
@@ -154,7 +154,7 @@
                             Sending <strong>{{file.name}}</strong> {{file.bar.progress | number:1 }}%
                             of  {{file.size | bytes}} to {{file.bar.destinatary}}
                           </span>
-                          <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.id}}' ng-model="file.bar.id"  flex></md-progress-linear>
+                          <md-progress-linear md-mode="determinate" value="{{file.bar.progress}}"  id='{{file.bar.id}}' ng-model="file.bar.id" < flex></md-progress-linear>
                         </md-content>
                       </md-content>
 

@@ -72,8 +72,18 @@
               <div ng-repeat="user in UserList" ng-click="" layout-align="center center">
                 <p>{{user.easyrtcid}}</p>
                 <div layout="row" layout-align="center start">
-                  <div ng-click='performCall(user.easyrtcid)' class="button-control" alt="VideoCall" style="background-color:#009688;color:white;"><i class="fa fa-video-camera"></i></div>
-                  <div ng-click='my_init(true);performCall(user.easyrtcid)' class="button-control" style="background-color:#3949ab;color:white;" alt="VideoCall"><i class="fa fa-phone"></i></div>
+                  <div ng-click='performCall(user.easyrtcid)' class="button-control" alt="VideoCall" style="background-color:#009688;color:white;">
+                    <md-tooltip md-direction="left">
+                      Videocall
+                    </md-tooltip>
+                    <i class="fa fa-video-camera"></i>
+                  </div>
+                  <div ng-click='my_init(true);performCall(user.easyrtcid)' class="button-control" style="background-color:#3949ab;color:white;" alt="VideoCall">
+                    <md-tooltip md-direction="bottom">
+                      Audicall (not supported)
+                    </md-tooltip>
+                    <i class="fa fa-phone"></i>
+                  </div>
                   <!-- <div ng-click="changeDestiny(user.easyrtcid)" class="button-control" style="background-color:#9c27b0;color:white;" alt="VideoCall"><i class="fa fa-comment"></i></div> -->
 
                   <div ng-click="
@@ -97,7 +107,7 @@
     <!-- VIDECALL SPACE -->
     <div layout="row" layout-sm="column" layout-xs="column"  flex>
 
-      <md-content flex="100" layout="column" layout-sm="row" layout-xs="row" flex-gt-sm="60"  class="border-radius">
+      <md-content flex="100" layout="column" layout-sm="row" layout-xs="row" flex-gt-sm="70"  class="border-radius">
         <md-content layout="row"   flex>
 
           <!-- VIDEO -->
@@ -110,15 +120,23 @@
 
           <!-- BACKGROUND DIV -->
           <md-content layout="row" layout-align="center center"  flex ng-show="!callInProgres" >
-            <div>
-            Messages like: you need to call, calling, call rejected...<br/>
+            <div class="videocall-status-div" layout="column" layout-align="center center" style="text-align:center;" >
+              <i class="fa {{status.icon}} fa-5x" ></i>
+              <div class="md-headline"  ng-bind-html="status.msg" > </div>
+              <div class="md-subhead" ng-bind-html="status.submsg"></div>
+
+
+
+            <!-- Messages like: you need to call, calling, call rejected...<br/>
             This will be inside a icon like:
             <div width="50px" style="border: 2px solid grey ;">
               $scope.icon (call, nothing, calling, rejected) <br/>
               $scope.message (the status message)<br/>
               $scope.submessage (the status submessage)
             </div>
-            Hided during a call
+            Hided during a call -->
+
+
           </div>
           </md-content>
         </md-content>

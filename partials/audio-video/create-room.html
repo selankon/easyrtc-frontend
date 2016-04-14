@@ -1,25 +1,29 @@
-<div layout="column" layout-align="center center"  flex>
+<div layout="column" layout-align="center center" class="av-room-creation" flex>
 
-  <div layout="row" layout-align="center center"  flex>
-    <h1 class="md-display-3">Create a new Room!</h1>
-  </div>
+  <div class="roomCreatorContent" layout="column" layout-align="center center"  >
 
-  <div layout="row" layout-align="center center"  flex>
-    <md-button ng-disabled="true" class="md-raised md-primary tolowercase" style="text-transform: lowercase !important;">{{baseUrl}}</md-button>
-    <!-- <p class="md-subhead"></p> -->
-    <form name="newRoomForm">
-      <md-input-container class="md-block">
-              <label>Room name!</label>
-              <input required name="clientName" name="roomId"  ng-model="roomId">
-              <div ng-messages="newRoomForm.roomId.$error">
-                <div ng-message="required">This is required.</div>
-              </div>
-      </md-input-container>
-    </form>
-  </div>
-  <div layout="row" layout-align="center center"  flex>
-    <!-- <md-button  ng-disabled="newRoomForm.$invalid" ui-sref="{{baseUrl}}{{roomId}}"  class="md-raised md-primary">Create!</md-button> -->
-    <!-- <md-button  ng-disabled="newRoomForm.$invalid" ng-click="createRoomBtn()"  class="md-raised md-primary">Create!</md-button> -->
-    <md-button  ng-disabled="newRoomForm.$invalid" ui-sref="{{baseUrl}}:roomId({roomId: roomId})  "  class="md-raised md-primary">Create!</md-button>
+
+    <div layout="row" layout-align="center center" class="enter-from-right delayed-animation" flex>
+      <h1 class="md-display-3">Create new Videocall Room!</h1>
+    </div>
+
+    <div class="enter-from-bottom delayed-animation">
+      <div layout="row" layout-align="center center"  flex>
+        <md-button ng-disabled="true" class="md-raised md-primary tolowercase" style="text-transform: lowercase !important;">{{baseUrl}}</md-button>
+        <!-- <p class="md-subhead"></p> -->
+        <form name="newRoomForm">
+          <md-input-container class="md-block">
+                  <label>Room name!</label>
+                  <input required name="clientName" name="roomId"  ng-model="roomId">
+                  <div ng-messages="newRoomForm.roomId.$error">
+                    <div ng-message="required">This is required.</div>
+                  </div>
+          </md-input-container>
+        </form>
+      </div>
+      <div layout="row" layout-align="center center"  flex>
+        <md-button  ng-disabled="newRoomForm.$invalid" ui-sref="{{baseUrl}}:roomId({roomId: roomId})  "  class="md-raised md-primary">Create!</md-button>
+      </div>
+    </div>
   </div>
 </div>

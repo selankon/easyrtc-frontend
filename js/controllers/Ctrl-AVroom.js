@@ -1,13 +1,80 @@
 var audioVideoCntrl = angular.module('audioVideoCntrl', []);
 
-audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDialog', '$mdMedia', 'startupEasyrtcService', 'callEasyrtcService',
-    function($scope, $stateParams, $mdDialog, $mdMedia, startupEasyrtcService, callEasyrtcService) {
+audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDialog', '$mdMedia', 'startupEasyrtcService', 'callEasyrtcService', 'sounds', 'soundPlayer',
+    function($scope, $stateParams, $mdDialog, $mdMedia, startupEasyrtcService, callEasyrtcService, sounds, soundPlayer) {
+
+      $scope.status = {
+        msg : null,
+        submsg : null,
+        icon : null
+      }
+      // Used for change the status (icon on background)
+      $scope.changeStatus = function (msg, submsg , icon) {
+        $scope.status.msg = msg;
+        $scope.status.submsg = submsg;
+        $scope.status.icon = icon;
+
+        // console.log("SCOPESTATUS " , $scope.status);
+      }
+      $scope.changeStatusTo = function (status, param) {
+        // console.log("Changing status " , status);
+        switch (status) {
+          case "logedOff":
+            $scope.changeStatus (
+              "Not logged in" ,
+              "You should share your camera <br> before videocall the world!",
+              "fa-sign-in shake");
+
+            break;
+          case "logedIn":
+            $scope.changeStatus (
+              "Logged!" ,
+              "Your Easyrtc Id is " + $scope.myId +"<br>Select user from userlist and start a call",
+              "fa-user shake");
+            break;
+          case "calling":
+            $scope.changeStatus (
+              "Calling!" ,
+              "Calling to " + param +"<br>Waiting response",
+              "fa-phone shakeInfinite");
+            break;
+          case "rejected":
+            $scope.changeStatus (
+              "Call Rejected!" ,
+              "Call rejected from " + param +"<br>Try it later",
+              "fa-frown-o shake");
+            break;
+          case "completed":
+            $scope.changeStatus (
+              "Call Finished with success!" ,
+              "Call to " + param +" finished succefully",
+              "fa-hand-peace-o  shake");
+            break;
+          case "streamClosed":
+            $scope.changeStatus (
+              "Stream Closed by the Peer!" ,
+              "Aparently, " + param +" <br>hang up the call",
+              "fa-hand-peace-o  shake");
+            break;
+          default:
+            $scope.changeStatus (
+            "Something wrong?" ,
+            "Something its not going on",
+            "fa-question  shake");
+          break;
+
+        }
+      }
+
+      $scope.changeStatusTo ("logedOff");
+
       $scope.setCallInProgres = function (value){
         $scope.callInProgres = value;
       };
       $scope.setMyId = function (value){
         $scope.myId = value;
       };
+
       $scope.roomId = $stateParams.roomId;
       $scope.setMyId (false);
       $scope.setCallInProgres (false);
@@ -63,6 +130,8 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
 
          //Show dialog
          $scope.showConfirm = function(data) {
+           var audioCall = soundPlayer.createSoundObject (sounds.incomingCall);
+           soundPlayer.play(audioCall);
            // Appending dialog to document.body to cover sidenav in docs app
            var confirm = $mdDialog.confirm()
                  .title(data.title)
@@ -70,12 +139,16 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
                  .ariaLabel(data.ariaLabel)
                  .ok(data.ok)
                  .cancel(data.cancel);
+
            $mdDialog.show(confirm).then(function() {
-             $scope.status = 'Call accepted.';
+            //  $scope.status = 'Call accepted.';
              $scope.acceptTheCall (true);
+             soundPlayer.stop (audioCall);
            }, function() {
              $scope.acceptTheCall (false);
-             $scope.status = 'Call rejected.';
+             soundPlayer.stop (audioCall);
+
+            //  $scope.status = 'Call rejected.';
              alert ($scope.status);
            });
 
@@ -95,13 +168,25 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
        });
 
         $scope.easyrtc.setOnStreamClosed( function (callerEasyrtcid) {
-          $scope.$apply(function() {$scope.setCallInProgres (false) });
-           callEasyrtcService.setVideoObjectSrc(document.getElementById('caller'), "");
+          callEasyrtcService.setVideoObjectSrc(document.getElementById('caller'), "");
+
+          $scope.$apply(function() {
+            console.log("STREAM CLOSED!" , callerEasyrtcid );
+            $scope.setCallInProgres (false)
+
+            $scope.changeStatusTo ("streamClosed", callerEasyrtcid);
+
+
+             });
        });
        //Conect room success
       var loginSuccess = function (myId) {
        console.log("My easyrtcid is " + myId);
-       $scope.$apply(function() { $scope.setMyId (myId);});
+       $scope.$apply(function() {
+         $scope.setMyId (myId);
+         $scope.changeStatusTo ("logedIn");
+
+       });
 
       }
       //Failed to connect to Room
@@ -123,14 +208,38 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
       };
 
       $scope.performCall = function (easyrtcid) {
+        $scope.changeStatusTo ("calling", easyrtcid);
+
+        var audioOutgoingCall = soundPlayer.createSoundObject (sounds.outgoingCall);
+        soundPlayer.playLoop(audioOutgoingCall);
+
           callEasyrtcService.call(
              easyrtcid,
              function(easyrtcid) {
                console.log("completed call to " + easyrtcid);
+                $scope.$apply(function() {
+                  soundPlayer.stop(audioOutgoingCall);
+
+                  $scope.changeStatusTo ("completed",easyrtcid);
+
+                });
              },
-             function(errorMessage) { console.log("err:" + errorMessage);},
+             function(errorMessage) {
+               alert("err:" + errorMessage);
+               console.log("err:" + errorMessage);
+               soundPlayer.stop(audioOutgoingCall);
+
+             },
              function(accepted, bywho) {
-               $scope.$apply(function() {$scope.setCallInProgres (true) });
+               $scope.$apply(function() {
+                 $scope.setCallInProgres (accepted)
+                 if (!accepted) {
+                   $scope.changeStatusTo ("rejected",bywho);
+                 }
+                 soundPlayer.stop(audioOutgoingCall);
+
+
+               });
                 console.log((accepted?"accepted":"rejected")+ " by " + bywho);
              }
          );
@@ -148,10 +257,13 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
       };
       $scope.hangUpAll = function (){
         $scope.setCallInProgres (false);
+        // $scope.changeStatusTo ("completed");
+
         callEasyrtcService.hangupAll();
       };
       $scope.disconnect = function (){
         callEasyrtcService.disconnectAll (document.getElementById("self"));
+        $scope.changeStatusTo ("logedOff");
         $scope.UserList = null;
         $scope.setMyId (false);
         $scope.setCallInProgres(false);

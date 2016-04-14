@@ -196,11 +196,9 @@ fileTransferHelper.factory('fileListsClientService', [
 
     // Remove a list of files
     var removeList =  function (destiny, list) {
-      console.log("dsadghstrfdhiognñerios... to ", destiny , list);
 
       for (x = 0 ; x < list.fileLists.length ; x++ ) {
         if (list.fileLists[x].destiny == destiny) {
-          console.log("INSIDE!");
           list.fileLists.splice(x,1);
           return true;
         }

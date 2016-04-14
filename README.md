@@ -1,14 +1,24 @@
 # Easyrtc-frontend
-## Easyrtc front end built in AngularJS and Angular Material
-
-#### HOW DO YOU INSTALL THE FRONT-END?
 
 #### NOT WRITTED AT ALL, NOT CODED AT ALL!!!
 
+## Easyrtc front end built in AngularJS and Angular Material
 
-0. Clone the easyrtc frontend into server root in a folder called app
-1. Add the https feature to the server with a fake keys for do the tests
-  - ADD the following lines
+This is a frontend built for the [EasyRTC](https://github.com/priologic/easyrtc) bundle, based in [WebRTC](https://webrtc.org/) project, that wants to make browser based real time communications easiest to use and implement using a simple API.
+
+The technology used to build this frontend are [AngularJS](https://angularjs.org/) framework and [Angular Material](https://material.angularjs.org) how UI Component framework.
+
+Also other technologies and open source codes are used for this purpose, _thanks to all_!
+
+![EasyRTC](https://easyrtc.com/assets/images/site/easyrtc-logo.png)  ![WebRTC](http://1.bp.blogspot.com/-P3WAVZtyytk/VO5Gou9SZzI/AAAAAAAAAPE/-550eUz_vVM/s1600/WebRTC.png) ![AngularJS](http://2.bp.blogspot.com/-cFDEu1MlBoQ/VASmJppOkkI/AAAAAAAACtM/bSWD-rBq9pA/s1600/angularjs.png)
+
+
+## Installation
+#### Using server example from easyrtc github repository
+
+0. Clone the easyrtc frontend in the cloned root of [EasyRTC](https://github.com/priologic/easyrtc) in a folder called `app`
+1. Add the https feature to the server. (OPTIONAL)
+  - ADD the following lines on server_example/server.js
 
   ```javascript
   var fs = require('fs');                   //For read fakekeys http
@@ -26,8 +36,8 @@
   var socketServer = io.listen(webServer, {"log level":1});
   var socketServer = io.listen(httpsServer, {"log level":1});
   ```
-2. Add your easyrtc-frontend files to the server avoiding create a new one
-in `/lib/easyrtc_default_options.js`
+2. Add the easyrtc-frontend files to the server avoiding create a new one
+in. Configure it in `/lib/easyrtc_default_options.js`
 
   ```javascript
   // App Options
@@ -35,7 +45,7 @@ in `/lib/easyrtc_default_options.js`
   option.appPublicFolder    = "/app";
   ```
 
-3. In `/lib/easyrtc_default_event_listeners` after aproximately line 1616 add an if for our app.
+3. In `/lib/easyrtc_default_event_listeners` after aproximately line 1616 add an `if` for our app.
 
   ```javascript
   // Set the EasyRTC demos
@@ -61,4 +71,37 @@ in `/lib/easyrtc_default_options.js`
     }
   ```
 
-With this we can acces to the forntend directly from our server installation without aditional http server.
+With this we could acces to the frontend directly from server_example, cloned from easyrtc github repo  without writing new one.
+
+**Don't forget to run bower install if it's necessary**
+
+## Configuration
+
+You can configure some things like chat sound or urls paths on `configurations.js`
+
+## ToDo
+
+**General**
+- [ ] Multiparty Chatroom support.
+- [ ] Only audio conference room support.
+- [ ] Testing all components.
+- [ ] Put the frontend work hardly and see the errors.
+- [ ] Make interface fully responsive.
+- [ ] Test responsive.
+- [ ] Nickname feature.
+- [ ] Improve file transfer system
+  * Multiple download from different sources
+  * Better communication system
+
+
+**Improvements**
+- [ ] Minimize / Maximize chat.
+- [ ] Chat messages appear in the middle of the screen on little devices.
+- [ ] Improved interface on file transfer rooms (more intuitive and easy to use).
+- [ ] beautiful and explanative "choice" page.
+- [ ] Improved chat features (like who is writting, beauty message show...).
+- [ ] Improve Emoji menu (to be more beautiful).
+- [ ] Make userlist beauty.
+- [ ] Make filelist beauty.
+- [ ] File transfer stop button.
+- [ ] Button stop calling.
