@@ -1,6 +1,6 @@
 # Easyrtc-frontend
 
-#### NOT WRITTED AT ALL, NOT CODED AT ALL!!!
+_NOT WRITTED AT ALL, NOT CODED AT ALL!!!_
 
 ## Easyrtc front end built in AngularJS and Angular Material
 
@@ -10,7 +10,9 @@ The technology used to build this frontend are [AngularJS](https://angularjs.org
 
 Also other technologies and open source codes are used for this purpose, _thanks to all_!
 
-![EasyRTC](https://easyrtc.com/assets/images/site/easyrtc-logo.png)  ![WebRTC](http://1.bp.blogspot.com/-P3WAVZtyytk/VO5Gou9SZzI/AAAAAAAAAPE/-550eUz_vVM/s1600/WebRTC.png) ![AngularJS](http://2.bp.blogspot.com/-cFDEu1MlBoQ/VASmJppOkkI/AAAAAAAACtM/bSWD-rBq9pA/s1600/angularjs.png)
+![EasyRTC](https://easyrtc.com/assets/images/site/easyrtc-logo.png)  ![AngularJS](http://2.bp.blogspot.com/-cFDEu1MlBoQ/VASmJppOkkI/AAAAAAAACtM/bSWD-rBq9pA/s1600/angularjs.png)
+<!-- ![WebRTC](http://1.bp.blogspot.com/-P3WAVZtyytk/VO5Gou9SZzI/AAAAAAAAAPE/-550eUz_vVM/s1600/WebRTC.png =200x60)  -->
+
 
 
 ## Installation
@@ -82,7 +84,7 @@ You can configure some things like chat sound or urls paths on `configurations.j
 ## ToDo
 
 **General**
-- [ ] Multiparty Chatroom support.
+- [ ] Multiparty Veideo chatroom support.
 - [ ] Only audio conference room support.
 - [ ] Testing all components.
 - [ ] Put the frontend work hardly and see the errors.
@@ -92,6 +94,8 @@ You can configure some things like chat sound or urls paths on `configurations.j
 - [ ] Improve file transfer system
   * Multiple download from different sources
   * Better communication system
+- [ ] Start file sharing from videocall room and videocalls from filesharing room
+
 
 
 **Improvements**

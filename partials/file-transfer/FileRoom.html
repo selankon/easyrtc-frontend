@@ -83,9 +83,10 @@
             <md-content flex="50" layout="column"   class="border-radius"   layout-align="center center" layout-margin>
 
               <md-content id="{{dropAreaName}}{{myId}}"  class="dragndrop connected drag-n-drop-zone border-radius-high" layout-align="center center" layout="column" flex >
-                  <button  id="fileInput"  ngf-select="uploadFiles($files , myId )" multiple class="ng-hide">Select Files</button>
+                  <!-- <button  id="fileInputs"  ngf-select="uploadFiles($files , myId )" multiple class="ng-hide">Select Files</button> -->
+                  <button  id="fileInputs"  ngf-select="uploadFiles($files, myId)" multiple class="ng-hide">Select Files</button>
                   <md-button type="button" class="md-raised md-primary"
-                   onclick="document.getElementById('fileInput').click()">Browse files</md-button>
+                   onclick="document.getElementById('fileInputs').click();">Browse SELF files</md-button>
                   <span class="md-title " >Or Drag&Drop!</span>
               </md-content>
 

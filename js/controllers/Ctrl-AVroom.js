@@ -1,7 +1,7 @@
 var audioVideoCntrl = angular.module('audioVideoCntrl', []);
 
-audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDialog', '$mdMedia', 'startupEasyrtcService', 'callEasyrtcService', 'sounds', 'soundPlayer',
-    function($scope, $stateParams, $mdDialog, $mdMedia, startupEasyrtcService, callEasyrtcService, sounds, soundPlayer) {
+audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDialog', '$mdMedia', 'startupEasyrtcService', 'callEasyrtcService', 'mediaResources', 'soundPlayer',
+    function($scope, $stateParams, $mdDialog, $mdMedia, startupEasyrtcService, callEasyrtcService, mediaResources, soundPlayer) {
 
       $scope.status = {
         msg : null,
@@ -130,7 +130,7 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
 
          //Show dialog
          $scope.showConfirm = function(data) {
-           var audioCall = soundPlayer.createSoundObject (sounds.incomingCall);
+           var audioCall = soundPlayer.createSoundObject (mediaResources.incomingCall);
            soundPlayer.play(audioCall);
            // Appending dialog to document.body to cover sidenav in docs app
            var confirm = $mdDialog.confirm()
@@ -210,7 +210,7 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
       $scope.performCall = function (easyrtcid) {
         $scope.changeStatusTo ("calling", easyrtcid);
 
-        var audioOutgoingCall = soundPlayer.createSoundObject (sounds.outgoingCall);
+        var audioOutgoingCall = soundPlayer.createSoundObject (mediaResources.outgoingCall);
         soundPlayer.playLoop(audioOutgoingCall);
 
           callEasyrtcService.call(
@@ -271,22 +271,7 @@ audioVideoCntrl.controller ('audiovideoPage', [ '$scope', '$stateParams', '$mdDi
 
 
 
-      //CHAT MOVIES
-      // $scope.audMsgReceived = function (){
-      //   var audio = new Audio(sounds.chatMessageAlert);
-      //   audio.play();
-      // }
-      // $scope.chat = {msgList: '', msg: ''};
-      // $scope.chat.msgList = [];
-      // $scope.msgReceived = function ( who ,msgType, msg) {
-      //     setTimeout(function() {
-      //         $scope.$apply(function () {
-      //             console.log("Message received!who: " , who," type:" , msgType, "  msg  ", msg );
-      //             $scope.chat.msgList.push(msg);
-      //             $scope.audMsgReceived();
-      //         }, 0);
-      //     });
-      // };
+
 
 
 

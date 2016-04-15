@@ -1,8 +1,9 @@
 var fileTransferCntrl = angular.module('fileTransferCntrl', []);
 
-fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', 'Upload', '$timeout', 'startupEasyrtcService', 'callEasyrtcService', 'ftEasyrtcService', 'chatEasyrtcService', 'fileListsServerService', 'fileListsClientService',
-// 'progressbarGestion',
-    function($scope, $stateParams, $state, $mdDialog, Upload, $timeout, startupEasyrtcService, callEasyrtcService, ftEasyrtcService, chatEasyrtcService, fileListsServerService, fileListsClientService, progressbarGestion) {
+
+
+fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$state',  '$mdDialog', '$timeout', 'startupEasyrtcService', 'callEasyrtcService', 'ftEasyrtcService', 'chatEasyrtcService', 'fileListsServerService', 'fileListsClientService',
+    function($scope, $stateParams, $state, $mdDialog, $timeout, startupEasyrtcService, callEasyrtcService, ftEasyrtcService, chatEasyrtcService, fileListsServerService, fileListsClientService, progressbarGestion) {
       $scope.setMyId = function (value){
         $scope.myId = value;
       }
@@ -120,7 +121,12 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
       //UPLOAD BUTTON
       $scope.uploadFiles = function(files , easyrtcid) {
         // console.log("BTN browse files " , files, easyrtcid);
+        console.log("AFSJAGJAGJAGJAGSJ");
         $scope.filesAdded (files, easyrtcid)
+      }
+
+      $scope.si = function ( ) {
+        console.log("SADSADGFGASDGWDSV");
       }
 
       // Create drag&drop
@@ -560,8 +566,6 @@ fileTransferCntrl.controller ('fileRoomCntrl', [ '$scope', '$stateParams', '$sta
          };
          $scope.showConfirm(params);
        };
-
-
 
 }]);
 

@@ -1,7 +1,7 @@
 var chatCntrl = angular.module('chatCntrl', []);
 
-chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds', 'emojiCallback', 'soundPlayer',
-  function($scope, chatEasyrtcService, sounds, emojiCallback, soundPlayer) {
+chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'mediaResources', 'emojiCallback', 'soundPlayer',
+  function($scope, chatEasyrtcService, mediaResources, emojiCallback, soundPlayer) {
 
 
     $scope.insertEmoji = function (name) {
@@ -41,7 +41,7 @@ chatCntrl.controller ('chatCntrlAll', [ '$scope', 'chatEasyrtcService', 'sounds'
                 // if (!$scope.isSpecialMessage){
                   // $scope.chat.chatList.push (msg);
                   chatEasyrtcService.updateMsgList (msg);
-                  soundPlayer.playSound(sounds.chatMessageAlert);
+                  soundPlayer.playSound(mediaResources.chatMessageAlert);
                 // }
 
              }, 0);

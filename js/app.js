@@ -5,7 +5,7 @@ var easyRtcApp = angular.module('easyRtcApp', [
   'ngMaterial',
   'ngSanitize',
   'ngMessages',
-  // 'ngFileUpload',
+  'ngFileUpload',
   'ui.bootstrap',
 
   'chatCntrl',
